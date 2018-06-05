@@ -12,12 +12,10 @@ do
 		D)
 			export DAEMON=true
 			;;
-		<< kill pid
 		k)
 			kill `cat $ROOT/../skynet.pid`
 			exit 0;
 			;;
-		pid
 	esac
 done
 
