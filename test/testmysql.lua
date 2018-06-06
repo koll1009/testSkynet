@@ -52,23 +52,16 @@ end
 
 skynet.start(function()
     logger.debug(" service testmysql start!")
-    local index=1
-    pr(skynet.call("."..runconf.service.mysql.servicename..index ,"lua","select","table1",{id=1},{"id","name"}))
-    index=index+1
-    pr(skynet.call("."..runconf.service.mysql.servicename..index,"lua","select","table1",{id=1}))
-    index=index+1
-    pr(skynet.call("."..runconf.service.mysql.servicename..index,"lua","update","table1",{id=1},{name="koll1009"}))  index=index+1
-    pr(skynet.call("."..runconf.service.mysql.servicename..index,"lua","insert","table1",{name="leidanling",age=33}))  index=index+1
-    pr(skynet.call("."..runconf.service.mysql.servicename..index,"lua","delete","table1",{id=1}))
-    --[[
- 
-        pr(db:insert("table1",{id=3,name="insert",age=33}))
-        pr(db:insert("table1",{id=4,name="insert",age=33}))
-        pr(db:insert("table1",{id=5,name="insert",age=33}))
-        pr(db:insert("table1",{id=5,name="insert",age=33}))
-        pr(db:delete("table1",{id=4,name="koll"}))
-        pr(db:delete("table1",{id=4}))
-        --]]
+    --[[ 
+    pr(skynet.call(".dbpool" ,"lua","select","table1",{id=1},{"id","name"}))
+   
+    pr(skynet.call(".dbpool","lua","select","table1",{id=1}))
+    pr(skynet.call(".dbpool","lua","update","table1",{id=1},{name="koll1009"})) 
+    pr(skynet.call(".dbpool","lua","insert","table1",{name="leidanling",age=33}))  
+    pr(skynet.call(".dbpool","lua","delete","table1",{id=1}))
+    pr(skynet.call(".dbpool" ,"lua","select","table1",{id=1},{"id","name"}))
+    --]]
+    pr(skynet.call(".mysqlService10","lua","insert","table1",{id=66,name="leidanling",age=33}))
     skynet.exit()
 end
 )

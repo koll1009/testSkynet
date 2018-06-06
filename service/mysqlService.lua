@@ -29,7 +29,7 @@ skynet.start(function()
     logger.set_name(servicename..index)
     skynet.dispatch("lua",function(session,source,cmd,...)
         local f = CMD[cmd]
-        logger.debug("recev from %08x",source)
+        --logger.debug("recev from %08x",source)
 		skynet.ret(skynet.pack(f(...)))
     end
     )

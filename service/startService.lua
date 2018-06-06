@@ -22,6 +22,9 @@ local function start_mysql()
         local addr=skynet.newservice(runconf.service.mysql.servicename,runconf.service.mysql.servicename,index)
         skynet.name("."..runconf.service.mysql.servicename..index,addr)
     end
+    logger.info("now start dbpool")
+    local addr=skynet.newservice("dbpoolService")
+    skynet.name(".dbpool",addr)
 end
 
 skynet.start(function()
