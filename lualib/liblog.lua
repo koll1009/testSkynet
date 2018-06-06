@@ -5,8 +5,44 @@ local loglevel = {
     debug = 1,
     info = 2,
     warn = 3,
-    err = 4,
+    error = 4,
+    default=5
 }
+local log_color_tag={
+    {
+        --debug 
+        color="\x1b[32m",
+        str="[debug] "
+    },
+    {
+        --info
+        color="\x1b[34m",
+        str="[info] "
+    },
+    {
+        --warn
+        color="\x1b[33m",
+        str="[warning] "
+    },
+    {
+        --error
+        color="\x1b[31m",
+        str="[error] "
+    },
+    {
+        --default
+        color="\x1b[0m",
+        str=""
+    }
+}
+local logtag={
+    string.format("%s%s", log_color_tag[loglevel.debug].color, log_color_tag[loglevel.debug].str),
+    string.format("%s%s", log_color_tag[loglevel.info].color, log_color_tag[loglevel.info].str),
+    string.format("%s%s", log_color_tag[loglevel.warn].color, log_color_tag[loglevel.warn].str),
+    string.format("%s%s", log_color_tag[loglevel.error].color, log_color_tag[loglevel.error].str),
+    string.format("%s%s", log_color_tag[loglevel.default].color, log_color_tag[loglevel.default].str),
+}
+
 
 
 local function init_log()
@@ -26,9 +62,9 @@ local function init_log()
     --logger._name=skynet.self()
 end
 
-local function logmsg(loglevel, format, ...)
-    local n = logger._name and string.format("[%s:] ", logger._name) or ""
-    skynet.error(n..string.format(format, ...))
+local function logmsg(level, format, ...)
+    local n = logger._name and string.format("%s: ", logger._name) or ""
+    skynet.error(logtag[level]..n..string.format(format, ...)..logtag[loglevel.default])
 end
 
 function logger.set_log_level(level)
@@ -40,6 +76,8 @@ function logger.set_log_level(level)
 
     logger._level = val
 end
+ 
+
 
 function logger.debug(format, ...)
     if logger._level <= loglevel.debug then
@@ -60,10 +98,11 @@ function logger.warn(format, ...)
 end
 
 function logger.error(format, ...)
-    if logger._level <= loglevel.err then
+    if logger._level <= loglevel.error then
         logmsg(loglevel.error, format, ...)
     end
 end
+
 
 
 function logger.set_name(name)

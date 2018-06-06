@@ -1,5 +1,5 @@
 ﻿local mysql = require "skynet.db.mysql"
-
+local logger=require "liblog"
 
 local mysqldb = {}
 mysqldb.__index = mysqldb
@@ -30,7 +30,7 @@ function mysqldb.start(conf)
 		
         return nil
 	end
-	
+	logger.debug("connect to myql susscced:database[%s]",database)
 	local o = {db = db,connected=true}
 	setmetatable(o, mysqldb)
     return o

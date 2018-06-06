@@ -16,14 +16,13 @@ lualoader	= skynet_root.."lualib/loader.lua"
 cpath		= app_root.."cservice/?.so;"..skynet_root.."cservice/?.so;"
 
 luaservice	= app_root.."service/?.lua;"..
+              app_root.."test/?.lua;"..
 
-              skynet_root.."service/?.lua;"
+              skynet_root.."service/?.lua;"..
+              skynet_root.."examples/?.lua;"
 
 lua_path	= app_root.."config/?.lua;" ..
             app_root.."lualib/?.lua;" ..
-            app_root.."mod/?.lua;".. 
-            app_root.."mod/reserve/?.lua;"..
-            app_root.."mod/room/?.lua;"..
 
             skynet_root.."lualib/?.lua;" ..
             skynet_root.."lualib/compat10/?.lua;" ..
@@ -41,7 +40,17 @@ end
 
 start = "startService"
 
+---[[
 
+harbor = 1
+
+address = "127.0.0.1:2526"
+
+master = "127.0.0.1:2013"
+
+standalone = "0.0.0.0:2013"
+
+--]]
 
 if $DAEMON then
 	daemon = app_root.."run/skynet.pid"
