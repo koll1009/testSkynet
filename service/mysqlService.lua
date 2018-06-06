@@ -6,6 +6,8 @@ local runconf = require(skynet.getenv("runconfig"))local runconf = require(skyne
 local CMD={}
 local db
 
+local servicename,index=...
+
 function CMD.select(tablename,selector,fields)
     return db:select(tablename,selector,fields)
 end
@@ -24,13 +26,14 @@ end
 
 
 skynet.start(function()
+    logger.set_name(servicename..index)
     skynet.dispatch("lua",function(session,source,cmd,...)
         local f = CMD[cmd]
-        logger.debug("recev from %d",source)
+        logger.debug("recev from %08x",source)
 		skynet.ret(skynet.pack(f(...)))
     end
     )
-    --预留配置文件
+
     db=mysql.start(runconf.service.mysql.connection)
 end
 )

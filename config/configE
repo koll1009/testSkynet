@@ -7,7 +7,7 @@ log_level = "debug"
 
 thread = 1
 --harbor = 0
-bootstrap = "snlua bootstrap"
+bootstrap = "snlua bootstrapNew"
 
 runconfig = "runconfig"
 
@@ -40,7 +40,7 @@ end
 
 start = "startService"
 
----[[
+--[[
 
 harbor = 1
 

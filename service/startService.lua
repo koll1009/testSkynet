@@ -19,13 +19,13 @@ local function start_mysql()
     logger.info("now start mysql service!")
     local maxnum=runconf.service.mysql.maxnum
     for index=1,maxnum do
-        local addr=skynet.newservice(runconf.service.mysql.servicename)
+        local addr=skynet.newservice(runconf.service.mysql.servicename,runconf.service.mysql.servicename,index)
         skynet.name("."..runconf.service.mysql.servicename..index,addr)
     end
 end
 
 skynet.start(function()
-    logger.info("start!")
+    logger.info("server start,version is %s!",runconf.version)
     start_gateway()
     start_mysql()
     skynet.newservice("console")
