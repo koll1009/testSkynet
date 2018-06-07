@@ -4,6 +4,7 @@ require "skynet.manager"
 local runconf = require(skynet.getenv("runconfig"))
 
 logger.set_name("startService")
+
 local function start_gateway()
     logger.info("now start gateway!")
     local watchdog = skynet.newservice("watchdog")
@@ -22,15 +23,19 @@ local function start_mysql()
         local addr=skynet.newservice(runconf.service.mysql.servicename,runconf.service.mysql.servicename,index)
         skynet.name("."..runconf.service.mysql.servicename..index,addr)
     end
+
     logger.info("now start dbpool")
-    local addr=skynet.newservice("dbpoolService")
-    skynet.name(".mysqlpool",addr)
+    local a=skynet.newservice("dbpoolService")
+    skynet.name(".mysqlpool",a)
+    logger.info("stated")
 end
 
 skynet.start(function()
     logger.info("server start,version is %s!",runconf.version)
     start_gateway()
     start_mysql()
-    skynet.newservice("console")
+
+     skynet.newservice("testmysql",1)
+    --skynet.newservice("console")
     skynet.exit()
 end)

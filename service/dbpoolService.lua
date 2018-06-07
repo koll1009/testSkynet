@@ -8,10 +8,10 @@ local mysqlName=runconf.service.mysql.servicename
 local dbpool = {}
 local sleep_coroutine={}
 local client={}
-
+client.sleep=0
 local function init()
     for i = 1, maxnum do
-         table.insert(dbpool, mysqlName..i)
+         table.insert(dbpool, "."..mysqlName..i)
     end
     
 end
@@ -19,6 +19,9 @@ end
 local function wait()
     local co=coroutine.running()
     table.insert(sleep_coroutine,co)
+    if #sleep_coroutine>client.sleep then
+        client.sleep=#sleep_coroutine
+    end
     skynet.wait(co) --歇菜
 end
 
@@ -34,8 +37,6 @@ local function lua_dispatch(session,source,...)
     while true do
         if next(dbpool) then 
             local conn=table.remove(dbpool)
-            logger.debug(conn)
-            logger.debug(session)
             skynet.redirect(conn,source,"lua",session,skynet.pack(...))
             logger.info("已转发到%s",conn)
             break
@@ -46,19 +47,27 @@ local function lua_dispatch(session,source,...)
 end
 
 
+
  function client.back(index)
-    table.insert(dbpool,mysqlName..index)
+    local sname="."..mysqlName..index
+    logger.debug("%s is back",sname)
+    table.insert(dbpool,sname)
     wakeup()
+end
+
+function client.count()
+    logger.info("%d",client.sleep)
 end
 
 local function client_dispatch(session,source,cmd,...)
     local f=client[cmd]
-    if not f then 
+    if  f then 
         f(...)
     else
         logger.error("illegal cmd form %d ",source)
     end
 end
+ 
 skynet.register_protocol{
     name="client",
     id=skynet.PTYPE_CLIENT,
@@ -74,6 +83,7 @@ skynet.start(function()
     skynet.dispatch("lua",lua_dispatch)
 end
 )
+
 
 
 

@@ -36,8 +36,10 @@ skynet.start(function()
     skynet.dispatch("lua",function(session,source,cmd,...)
         local f = CMD[cmd]
         --logger.debug("recev from %08x",source)
-        skynet.ret(skynet.pack(f(...)))
-        skynet.send(".dbpool","client","back",index)
+        if f then
+            skynet.ret(skynet.pack(f(...)))
+            skynet.send(".mysqlpool","client","back",index)
+        end
     end
     )
 

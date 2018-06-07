@@ -1,4 +1,4 @@
-
+local index=...
 local logger=require "liblog"
 local skynet=require "skynet"
 local runconf = require(skynet.getenv("runconfig"))
@@ -50,6 +50,7 @@ local function pr(ret,res)
     logger.debug("%s:%s",ret==0 and true or false,ret==0 and dump(res) or res)
 end
 
+skynet.register_protocol{name="client",id=skynet.PTYPE_CLIENT}
 
 skynet.start(function()
     logger.debug(" service testmysql start!")
@@ -57,8 +58,20 @@ skynet.start(function()
     --pr( skynet.call(".dbpool","lua","select","table1",{id=1},{"id","name"}))
    -- skynet.call(".mysqlService1","lua","select","table1",{id=1},{"id","name"})
    -- pr( skynet.call(".mysqlpool","lua","select","table1",{id=1},{"id","name"}))
-    skynet.send(".mysqlpool","lua","select","table1",{id=1},{"id","name"})
-     
+    --skynet.send(".mysqlpool","lua","select","table1",{id=1},{"id","name"})
+    for k=1,10  do
+    for i=1,20 do 
+      --  pr(skynet.call(".mysqlpool","lua","select","table1",{id=66},{"id","name"}))
+      --print("testmyql",index)
+      skynet.send(".mysqlpool","lua","select","table1",{id=66},{"id","name"})
+      --skynet.call(".mysqlpool","lua","select","table1",{id=66},{"id","name"})
+    end
+    skynet.sleep(200)
+    skynet.rawsend(".mysqlpool","client",skynet.pack("count"))
+end
+   -- local ret=skynet.call(".mysqlpool","lua","select","table1",{id=1},{"id","name"})
+    --pr(ret)
+   
     --[[ 
     
     pr(skynet.unpack(skynet.rawcall(".dbpool" ,"lua",skynet.pack("select","table1",{id=1},{"id","name"})))
