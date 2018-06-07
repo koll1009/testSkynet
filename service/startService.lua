@@ -24,7 +24,7 @@ local function start_mysql()
     end
     logger.info("now start dbpool")
     local addr=skynet.newservice("dbpoolService")
-    skynet.name(".dbpool",addr)
+    skynet.name(".mysqlpool",addr)
 end
 
 skynet.start(function()
@@ -32,7 +32,5 @@ skynet.start(function()
     start_gateway()
     start_mysql()
     skynet.newservice("console")
-    logger.warn("test")
-    logger.error("test")
     skynet.exit()
 end)

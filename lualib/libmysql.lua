@@ -80,6 +80,7 @@ function mysqldb:select(tablename, selector, fields)
     local fields_str = build_fields(fields)
 
     local sql = string.format("select %s from %s where %s", fields_str, tablename, selector_str)
+    logger.debug(sql)
     local ret = db:query(sql)
 
     if(ret.errno) then
@@ -117,6 +118,7 @@ function mysqldb:update(tablename, selector, update)
     local update_str = build_update(update)
 
     local sql = string.format("update %s set %s where %s", tablename, update_str, selector_str)
+    logger.debug(sql)
     local ret = db:query(sql)
     if(ret.errno) then
         return ret.errno,ret.err
@@ -153,7 +155,7 @@ function mysqldb:insert(tablename, data)
     local field_str, value_str = build_insert_data(data)
     
     local sql = string.format("insert into %s(%s) values(%s)", tablename, field_str, value_str)
- 
+    logger.debug(sql)
     local ret = db:query(sql)
     
     if(ret.errno) then
@@ -171,7 +173,7 @@ function mysqldb:delete(tablename, selector)
     local selector_str = build_selector(selector)
     local sql = string.format("delete from %s where %s", tablename, selector_str)
     local ret = db:query(sql)
-
+    logger.debug(sql)
     if(ret.errno) then
         return ret.errno,ret.err
     end 
