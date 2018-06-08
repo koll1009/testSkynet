@@ -181,6 +181,52 @@ function mysqldb:delete(tablename, selector)
     return 0,ret
 end
 
+function mysqldb:executeSql(strSql)
+    assert(self.connected,"pls connect mysql first")
+    local db=self.db
+    local ret = db:query(strSql)
+    if ret.errno then
+        return ret.errno,ret.err
+    end 
+
+    return 0,ret
+end
+
+function mysqldb:beginTransaction()
+    assert(self.connected,"pls connect mysql first")
+    local db=self.db
+    local ret=db:query("start transaction;")
+    if ret.errno then
+        return ret.errno,ret.err
+    end 
+
+    return 0,ret
+end
+
+function mysqldb:commit()
+    assert(self.connected,"pls connect mysql first")
+    local db=self.db
+    local ret=db:query("commit;")
+    if ret.errno then
+        return ret.errno,ret.err
+    end 
+
+    return 0,ret
+end
+
+function mysqldb:rollback()
+    assert(self.connected,"pls connect mysql first")
+    local db=self.db
+    local ret=db:query("rollback;")
+    if ret.errno then
+        return ret.errno,ret.err
+    end 
+
+    return 0,ret
+end
+
+
+
 function mysqldb:close()
     assert(self.connected,"pls connect mysql first")
     local db=self.db

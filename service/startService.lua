@@ -33,7 +33,7 @@ end
 skynet.start(function()
     logger.info("server start,version is %s!",runconf.version)
     start_gateway()
-    start_mysql()
+    --start_mysql()
 
      skynet.newservice("testmysql",1)
     --skynet.newservice("console")

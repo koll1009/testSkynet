@@ -2,6 +2,7 @@ local index=...
 local logger=require "liblog"
 local skynet=require "skynet"
 local runconf = require(skynet.getenv("runconfig"))
+local mysql=require "libmysql"
 
 local function dump(obj)
     local getIndent, quoteStr, wrapKey, wrapVal, dumpObj
@@ -54,11 +55,24 @@ skynet.register_protocol{name="client",id=skynet.PTYPE_CLIENT}
 
 skynet.start(function()
     logger.debug(" service testmysql start!")
+    db=mysql.start(runconf.service.mysql.connection)
+    pr(db:beginTransaction())
+    pr(db:executeSql("update table1 set age=01 where id=66"))
+    --pr(db:rollback())
+    pr(db:commit())
+    db:close()
+
+   -- pr(db:executeSql("update table1 set age=26 where id=66"))
+    --pr(skynet.call(".mysqlpool","lua","execute","select * from table1"))
+    
+    --pr(skynet.call(".mysqlpool","lua","execute","update test.table1 set age=26 where id=66"))
+    --pr(skynet.call(".mysqlpool","lua","execute","insert into table1(name,age) values('koll',31)"))
 
     --pr( skynet.call(".dbpool","lua","select","table1",{id=1},{"id","name"}))
    -- skynet.call(".mysqlService1","lua","select","table1",{id=1},{"id","name"})
    -- pr( skynet.call(".mysqlpool","lua","select","table1",{id=1},{"id","name"}))
     --skynet.send(".mysqlpool","lua","select","table1",{id=1},{"id","name"})
+    --[[ 
     for k=1,10  do
     for i=1,20 do 
       --  pr(skynet.call(".mysqlpool","lua","select","table1",{id=66},{"id","name"}))

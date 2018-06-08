@@ -24,6 +24,11 @@ function CMD.delete(tablename,selector)
     return db:delete(tablename,selector)
 end
 
+function CMD.execute(strSql)
+    return db:executeSql(strSql)
+end
+
+
 skynet.register_protocol{
     name="client",
     id=skynet.PTYPE_CLIENT,
@@ -39,6 +44,8 @@ skynet.start(function()
         if f then
             skynet.ret(skynet.pack(f(...)))
             skynet.send(".mysqlpool","client","back",index)
+        else
+            --异常处理
         end
     end
     )
