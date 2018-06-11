@@ -2,7 +2,8 @@ local index=...
 local logger=require "liblog"
 local skynet=require "skynet"
 local runconf = require(skynet.getenv("runconfig"))
-local mysql=require "libmysql"
+--local mysql=require "libmysql"
+local dbpool=require "libdbpool"
 
 local function dump(obj)
     local getIndent, quoteStr, wrapKey, wrapVal, dumpObj
@@ -55,12 +56,17 @@ skynet.register_protocol{name="client",id=skynet.PTYPE_CLIENT}
 
 skynet.start(function()
     logger.debug(" service testmysql start!")
-    db=mysql.start(runconf.service.mysql.connection)
-    pr(db:beginTransaction())
-    pr(db:executeSql("update table1 set age=01 where id=66"))
+ 
+    pr(dbpool.select("table1",{id=66}))
+    pr(dbpool.insert("table1",{id=53,age=1,name="lailai"}))
+    pr(dbpool.update("table1",{id=3},{age=1}))
+    pr(dbpool.delete("table1",{id=2}))
+    pr(dbpool.beginTransaction())
+    pr(dbpool.execute("update table1 set age=01 where id=66"))
     --pr(db:rollback())
-    pr(db:commit())
-    db:close()
+    pr(dbpool.commit())
+    pr(dbpool.execute("select  * from table1 where id=66 "))
+
 
    -- pr(db:executeSql("update table1 set age=26 where id=66"))
     --pr(skynet.call(".mysqlpool","lua","execute","select * from table1"))

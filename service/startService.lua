@@ -25,17 +25,25 @@ local function start_mysql()
     end
 
     logger.info("now start dbpool")
-    local a=skynet.newservice("dbpoolService")
-    skynet.name(".mysqlpool",a)
-    logger.info("stated")
+    local addr=skynet.newservice("dbpoolService")
+    skynet.name(".mysqlpool",addr)
+
+end
+
+local function start_redis()
+    logger.info("now start redis service")
+    local addr=skynet.newservice("redisService")
+    skynet.name(".redis",addr)
+
 end
 
 skynet.start(function()
     logger.info("server start,version is %s!",runconf.version)
     start_gateway()
-    --start_mysql()
+    start_mysql()
+    start_redis()
 
-     skynet.newservice("testmysql",1)
-    --skynet.newservice("console")
+    --skynet.newservice("testmysql",1)
+    skynet.newservice("console")
     skynet.exit()
 end)

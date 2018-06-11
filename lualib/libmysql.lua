@@ -196,6 +196,7 @@ function mysqldb:beginTransaction()
     assert(self.connected,"pls connect mysql first")
     local db=self.db
     local ret=db:query("start transaction;")
+    logger.debug("start transaction;")
     if ret.errno then
         return ret.errno,ret.err
     end 
@@ -207,6 +208,7 @@ function mysqldb:commit()
     assert(self.connected,"pls connect mysql first")
     local db=self.db
     local ret=db:query("commit;")
+    logger.debug("commit;")
     if ret.errno then
         return ret.errno,ret.err
     end 
@@ -218,6 +220,7 @@ function mysqldb:rollback()
     assert(self.connected,"pls connect mysql first")
     local db=self.db
     local ret=db:query("rollback;")
+    logger.debug("rollback;")
     if ret.errno then
         return ret.errno,ret.err
     end 

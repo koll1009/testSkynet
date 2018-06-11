@@ -6,7 +6,12 @@ return {
 		mysql={
 			maxnum=10,
 			servicename="mysqlService",
-			connection={host="127.0.0.1",port=3306,database="test",user="root",password="password"}
+			connection={ host="127.0.0.1",port=3306,database="test",user="root",password="password" }
+		},
+		redis={
+			maxnum=10,
+			servicename="redisService",
+			connection= { host="127.0.0.1",port=6379 }
 		}
     } 
 }

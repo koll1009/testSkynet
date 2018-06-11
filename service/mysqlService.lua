@@ -28,6 +28,19 @@ function CMD.execute(strSql)
     return db:executeSql(strSql)
 end
 
+function CMD.beginTransaction()
+    return db:beginTransaction()
+end
+
+function CMD.commit()
+    return db:commit()
+end
+
+function CMD.rollback()
+    return db:rollback()
+end
+
+ 
 
 skynet.register_protocol{
     name="client",
@@ -43,9 +56,9 @@ skynet.start(function()
         --logger.debug("recev from %08x",source)
         if f then
             skynet.ret(skynet.pack(f(...)))
-            skynet.send(".mysqlpool","client","back",index)
+            --skynet.send(".mysqlpool","client","back",index)
         else
-            --异常处理
+            --异常处理 
         end
     end
     )
