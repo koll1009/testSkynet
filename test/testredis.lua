@@ -1,24 +1,23 @@
 local skynet = require "skynet"
 local dump=require "libdump"
 local logger=require "liblog"
+local redispool=require "libredispool"
 
 local conf = {
 	host = "127.0.0.1" ,
 	port = 6379 ,
 }
 
-local function pr(ret,res)
-    logger.debug("%s:%s",ret,ret and dump.dump(res) or res)
+local function pr(res)
+    logger.debug("%s",  dump.dump(res)  )
 end
 
-skynet.start(function()    
-    pr(skynet.call(".redis","lua","set","A","hello"))
-    pr(skynet.call(".redis","lua","set","B","world"))
-    pr(skynet.call(".redis","lua","sadd","C","one"))
-    pr(skynet.call(".redis","lua","get","A"))
-    pr(skynet.call(".redis","lua","get","B"))
-    pr(skynet.call(".redis","lua","del","D"))
-
+skynet.start(function()  
+	pr(redispool.set("name","koll"))  
+	pr(redispool.set("age","31")) 
+	pr(redispool.get("name")) 
+	pr(redispool.get("age")) 
+    pr(redispool.keys("*")) 
     --[[ 
 	db:del "C"
 	db:set("A", "hello")

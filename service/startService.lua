@@ -23,17 +23,20 @@ local function start_mysql()
         local addr=skynet.newservice(runconf.service.mysql.servicename,runconf.service.mysql.servicename,index)
         skynet.name("."..runconf.service.mysql.servicename..index,addr)
     end
-
-    logger.info("now start dbpool")
+    --[[ 
+    logger.info("now start mysql")
     local addr=skynet.newservice("dbpoolService")
     skynet.name(".mysqlpool",addr)
-
+    --]]
 end
 
 local function start_redis()
-    logger.info("now start redis service")
-    local addr=skynet.newservice("redisService")
-    skynet.name(".redis",addr)
+    logger.info("now start redis service!")
+    local maxnum=runconf.service.redis.maxnum
+    for index=1,maxnum do
+        local addr=skynet.newservice(runconf.service.redis.servicename,runconf.service.redis.servicename,index)
+        skynet.name("."..runconf.service.redis.servicename..index,addr)
+    end
 
 end
 
