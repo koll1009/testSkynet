@@ -6,12 +6,6 @@ local runconf = require(skynet.getenv("runconfig"))local runconf = require(skyne
 local servicename,index=...
 local db={}
 
-skynet.register_protocol{
-    name="client",
-    id=skynet.PTYPE_CLIENT,
-    pack=skynet.pack,
-    unpack=skynet.unpack
-}
 
 skynet.start(function()
     if  servicename and  index then
