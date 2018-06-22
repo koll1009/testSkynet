@@ -37,7 +37,7 @@ if $DAEMON then
 	logger = "userlog"
 end
 ]]
-
+cluster="clusterconfig.lua"
 start = "startService"
 
 --[[

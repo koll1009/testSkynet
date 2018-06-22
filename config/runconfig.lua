@@ -12,6 +12,23 @@ return {
 			maxnum=10,
 			servicename="redisService",
 			connection= { host="127.0.0.1",port=6379 }
+		},
+		server={
+			loginserver={
+				host="127.0.0.1",
+				port=8081,
+				name="loginserver",
+				multilogin=false,
+				instance=8
+			},
+			gameserver1={
+				host="127.0.0.1",
+				port=8082
+			},
+			gameserver2={
+				host="127.0.0.1",
+				port=8083
+			},
 		}
     } 
 }
