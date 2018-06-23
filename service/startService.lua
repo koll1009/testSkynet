@@ -35,11 +35,18 @@ local function start_redis()
 
 end
 
+local function start_login()
+    logger.info("now start login service")
+    skynet.newservice( "login/loginService" ) 
+
+end
+
 skynet.start(function()
     logger.info("server start,version is %s!",runconf.version)
-    start_gateway()
-    start_mysql()
-    start_redis()
+    --start_gateway()
+    --start_mysql()
+    --start_redis()
+    start_login()
 
     --skynet.newservice("testmysql",1)
     skynet.newservice("console")

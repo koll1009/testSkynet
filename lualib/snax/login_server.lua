@@ -41,7 +41,7 @@ local function assert_socket(service, v, fd)
 	if v then
 		return v
 	else
-		logger.error("%s failed: socket (fd = %d) closed", service, fd))
+		logger.error("%s failed: socket (fd = %d) closed", service, fd)
 		error(socket_error)
 	end
 end
@@ -61,7 +61,7 @@ end
 
 local function launch_slave(auth_handler)
 	local function auth(fd, addr)
-        logger.debug("connect from %s (fd = %d)", addr, fd))
+        logger.debug("connect from %s (fd = %d)", addr, fd)
         
 		socket.start(fd)
 
@@ -83,6 +83,8 @@ local function launch_slave(auth_handler)
 
 		local secret = crypt.dhsecret(clientkey, serverkey)
 
+		logger.debug("server secret is %s",crypt.hexencode(secret))
+
 		local response = read("auth", fd)
 		local hmac = crypt.hmac64(challenge, secret) --hmac加密challenge 看看是否和客户端发送过的验证一直
 
@@ -96,6 +98,8 @@ local function launch_slave(auth_handler)
 
 		local token = crypt.desdecode(secret, crypt.base64decode(etoken)) --解密token数据
 
+		logger.debug("server receive token %s",token)
+		logger.debug(type(auth_handler))
 		local ok, server, uid = pcall(auth_handler, token) --调用认证函数
 
 		return ok, server, uid, secret
@@ -194,7 +198,7 @@ local function launch_master(conf)
 		local ok, err = pcall(accept, conf, s, fd, addr)
 		if not ok then
 			if err ~= socket_error then
-				logger.debug( "invalid client (fd = %d) error = %s", fd, err))
+				logger.debug( "invalid client (fd = %d) error = %s", fd, err)
 			end
 			socket.start(fd)
 		end
