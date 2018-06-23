@@ -93,6 +93,7 @@ function server.userid(username)
 	return b64decode(uid), b64decode(subid), b64decode(servername)
 end
 
+--生成用户名
 function server.username(uid, subid, servername)
 	return string.format("%s@%s#%s", b64encode(uid), b64encode(servername), b64encode(tostring(subid)))
 end
@@ -106,6 +107,7 @@ function server.logout(username)
 	end
 end
 
+--保存用户信息
 function server.login(username, secret)
 	assert(user_online[username] == nil)
 	user_online[username] = {
@@ -151,10 +153,10 @@ function server.start(conf)
 		return conf.register_handler(servername)
 	end
 
-	-- 新连接到来回调
+	-- 接收到客户端连接
 	function handler.connect(fd, addr)
-		handshake[fd] = addr
-		gateserver.openclient(fd)
+		handshake[fd] = addr  --保存fd和客户端ip地址
+		gateserver.openclient(fd) --开启数据接收
 	end
 
 	-- 连接断开回调
@@ -226,7 +228,7 @@ function server.start(conf)
 			
 			local username = string.match(message, "([^:]*):([^:]*):([^:]*)")
 			
-			local uid = server.userid(username)
+			local uid = server.userid(username) 
 			uid = tonumber(uid)
 			online_handler(uid, fd)
 		end
@@ -253,11 +255,11 @@ function server.start(conf)
 		end
 	end
 
-	-- socket消息到来时回调，新连接的第一条消息是握手消息
+	-- 接收到socket data时回调，新连接的第一条消息是握手消息
 	function handler.message(fd, msg, sz)
 		local addr = handshake[fd]
 		if addr then
-			auth(fd,addr,msg,sz)
+			auth(fd,addr,msg,sz) --进行认证
 			handshake[fd] = nil
 		else
 			request(fd, msg, sz)

@@ -35,7 +35,7 @@ function server.auth_handler(args)
 		logger.error("auth failed")
 		error("auth failed")--此时accept会报错
 	end
-	return server, uid 
+	return server, uid  --返回游戏服务器信息以及用户id
 end
 
 -- 认证成功后，回调此函数，登录游戏服务器，server为服务器信息，uid为用户信息，secret为密钥

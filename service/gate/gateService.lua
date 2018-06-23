@@ -14,13 +14,14 @@ server.expired_number = 128
 
 local max_agent
 local curr_agent
+
 function server.init_handler()
 	local maxclient = (tonumber(skynet.getenv("maxclient")) or 1024)
 	local n = maxclient // 10
-	LOG_INFO("precreate %d agents", n)
+	logger.info("precreate %d agents", n)
 	for i = 1, n do
-		local agent = assert(skynet.newservice("msgagent"), string.format("precreate agent %d of %d error", i, n))
-		table.insert(agent_pool, agent)
+		--local agent = assert(skynet.newservice("msgagent"), string.format("precreate agent %d of %d error", i, n))
+		--table.insert(agent_pool, agent)
 	end
 	max_agent = 2 * maxclient
 	curr_agent = n
@@ -38,26 +39,25 @@ end
 function server.online_handler(uid, fd)
 	skynet.call(users[uid].agent, "lua", "online", uid, fd)
 end
--- login server disallow multi login, so login_handler never be reentry
--- call by login server
--- 内部命令login处理函数
--- 玩家登录 登录服务器成功后，调用此函数登录游戏服务器
+
+
+-- command login处理函数
+-- 玩家通过登录服务器认证后，调用此函数 uid用户id secret密钥
 function server.login_handler(uid, secret)
 	if users[uid] then
-		local errmsg = string.format("%d is already login", uid)
-		LOG_ERROR(errmsg)
+		logger.error("%d is already login", uid)
 		error(errmsg)
 	end
 
-	internal_id = internal_id + 1
-	local username = msgserver.username(uid, internal_id, NODE_NAME)
-	local agent = table.remove(agent_pool)
+	internal_id = internal_id + 1 --分配服务器内部id
+	local username = msgserver.username(uid, internal_id, NODE_NAME) --通过用户id，服务器内部id和服务器名生成唯一用户名
+	local agent = table.remove(agent_pool) --取一个agent服务
 	if not agent then
 		if curr_agent < max_agent then
 			agent = skynet.newservice "msgagent"
 			curr_agent = curr_agent + 1
 		else
-			LOG_ERROR("too many agents")
+			logger.error("too many agents")
 			error("too many agents")
 		end
 	end
@@ -77,7 +77,6 @@ function server.login_handler(uid, secret)
 
 	msgserver.login(username, secret)
 
-	-- you should return unique subid
 	return internal_id
 end
 

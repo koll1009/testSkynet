@@ -84,7 +84,7 @@ local function launch_slave(auth_handler)
 		local secret = crypt.dhsecret(clientkey, serverkey)
 
 		local response = read("auth", fd)
-		local hmac = crypt.hmac64(challenge, secret)
+		local hmac = crypt.hmac64(challenge, secret) --hmac加密challenge 看看是否和客户端发送过的验证一直
 
 		if hmac ~= crypt.base64decode(response) then
 			write("auth", fd, "400 Bad Request\n")
@@ -94,7 +94,7 @@ local function launch_slave(auth_handler)
 
 		local etoken = read("auth", fd)
 
-		local token = crypt.desdecode(secret, crypt.base64decode(etoken))
+		local token = crypt.desdecode(secret, crypt.base64decode(etoken)) --解密token数据
 
 		local ok, server, uid = pcall(auth_handler, token) --调用认证函数
 
@@ -128,7 +128,7 @@ local user_login = {}	-- key:uid value:true 表示玩家登录记录
 
 local function accept(conf, s, fd, addr)
 	 
-	local ok, server, uid, secret = skynet.call(s, "lua",  fd, addr) --调用slave处理认证过程，此过程可能会休眠
+	local ok, server, uid, secret = skynet.call(s, "lua",  fd, addr) --调用slave处理认证过程，返回游服信息，用户id以及密钥
 	socket.start(fd)  
 
 	-- 认证失败，有两种可能，nil是socket error，false是认证失败
