@@ -21,14 +21,18 @@ return {
 				multilogin=false,
 				instance=8
 			},
-			gameserver1={
-				host="127.0.0.1",
-				port=8082
-			},
-			gameserver2={
-				host="127.0.0.1",
-				port=8083
-			},
+			gameserver={ 
+				[1]={
+					address="127.0.0.1",
+					port=8082,
+					name="gameserver1"
+				},
+				[2]={
+					address="127.0.0.1",
+					port=8083,
+					name="gameserver2"
+				}
+			}	
 		}
     } 
 }

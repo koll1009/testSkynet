@@ -9,8 +9,8 @@ local logger=require "liblog"
 local LOGIN_HOST = runconf.service.server.loginserver.host
 local LOGIN_PORT = runconf.service.server.loginserver.port 
 
-local GAME_HOST = runconf.service.server.gameserver1.host
-local GAME_PORT = runconf.service.server.gameserver1.port
+local GAME_HOST = runconf.service.server.gameserver[1].host
+local GAME_PORT = runconf.service.server.gameserver[2].port
 
 local gameserver = "gameserver1"
 

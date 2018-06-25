@@ -19,5 +19,4 @@ do
 	esac
 done
 
-$SKYNET_ROOT/skynet $ROOT/config/configE
-
+$SKYNET_ROOT/skynet $ROOT/config/configGame

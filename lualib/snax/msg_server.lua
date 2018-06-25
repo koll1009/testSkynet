@@ -132,7 +132,7 @@ function server.start(conf)
 	local handler = {}
 
 	local CMD = {
-		login = assert(conf.login_handler),
+		login = assert(conf.login_handler), 
 		logout = assert(conf.logout_handler),
 		kick = assert(conf.kick_handler),
 		init = assert(conf.init_handler),		-- 主要用于初始化agent池
@@ -149,8 +149,8 @@ function server.start(conf)
 
 	-- 网关服务器open（打开监听）回调
 	function handler.open(source, gateconf)
-		local servername = assert(gateconf.servername)
-		return conf.register_handler(servername)
+		--local servername = assert(gateconf.name)
+		--return conf.register_handler(servername)
 	end
 
 	-- 接收到客户端连接

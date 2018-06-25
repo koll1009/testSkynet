@@ -1,3 +1,4 @@
+
 local skynet = require "skynet"
 require "skynet.manager"	-- import skynet.launch, ...
 local memory = require "skynet.memory"
@@ -9,6 +10,6 @@ skynet.start(function()
 	local launcher = assert(skynet.launch("snlua","launcher"))
 	skynet.name(".launcher", launcher)
 	skynet.newservice "service_mgr"
-	pcall(skynet.newservice,skynet.getenv "start" or "main")
+	pcall(skynet.newservice,skynet.getenv "start" or "main","game",1)
 	skynet.exit()
 end)

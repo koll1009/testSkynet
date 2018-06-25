@@ -7,7 +7,7 @@ log_level = "debug"
 
 thread = 1
 
-bootstrap = "snlua bootstrapLogin"
+bootstrap = "snlua bootstrapGame"
 --bootstrap = "snlua bootstrap"
 
 runconfig = "runconfig"

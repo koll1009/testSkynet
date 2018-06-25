@@ -15,6 +15,7 @@ server.expired_number = 128
 local max_agent
 local curr_agent
 
+--网关的init函数，用于初始化agent pool
 function server.init_handler()
 	local maxclient = (tonumber(skynet.getenv("maxclient")) or 1024)
 	local n = maxclient // 10
@@ -127,7 +128,7 @@ function server.request_handler(username, msg)
 	return skynet.tostring(skynet.rawcall(u.agent, "client", msg))
 end
 
--- call by self (when gate open)
+-- 网关open后，注册登记函数
 function server.register_handler(name)
 
 end
@@ -157,4 +158,3 @@ function server.is_online(uid)
 end
 
 msgserver.start(server)		-- 启动游戏服务器
-skynet.register(SERVICE_NAME)

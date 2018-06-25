@@ -99,7 +99,6 @@ local function launch_slave(auth_handler)
 		local token = crypt.desdecode(secret, crypt.base64decode(etoken)) --解密token数据
 
 		logger.debug("server receive token %s",token)
-		logger.debug(type(auth_handler))
 		local ok, server, uid = pcall(auth_handler, token) --调用认证函数
 
 		return ok, server, uid, secret

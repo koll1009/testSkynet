@@ -1,19 +1,22 @@
+local start,index=...
 local skynet= require "skynet"
 local logger=require "liblog"
 require "skynet.manager"
+local cluster=require "cluster"
 local runconf = require(skynet.getenv("runconfig"))
 
 logger.set_name("startService")
 
-local function start_gateway()
-    logger.info("now start gateway!")
-    local watchdog = skynet.newservice("watchdog")
-	skynet.call(watchdog, "lua", "start", {
-		port = 8888,
-		maxclient = max_client,
-		nodelay = true,
-	})
-	skynet.error("Watchdog listen on", 8888)
+local function start_gameserver(index)
+    logger.info("now start gameserver%d!",index)
+    local gameconf=runconf.service.server.gameserver[tonumber(index)]
+    logger.debug("gameconf %s",tostring(gameconf))
+    local gate=skynet.uniqueservice("gate/gateService")
+    skynet.name("."..gameconf.name,gate)
+    skynet.call(gate,"lua","init")--初始化
+    skynet.call(gate,"lua","open",gameconf)
+    cluster.open(gameconf.name)
+   -- skynet.call(gate,)
 end
 
 local function start_mysql()
@@ -37,17 +40,28 @@ end
 
 local function start_login()
     logger.info("now start login service")
+    logger.debug("loginconf %s",tostring(loginconf))
     skynet.newservice( "login/loginService" ) 
+    cluster.open(runconf.service.server.loginserver.name) --部署多服节点
+end
 
+local function init(start,index)
+    if start=="login" then 
+        start_login()
+    elseif start=="game" then
+        start_gameserver(index)
+    else
+        logger.error("error server type,just game or login")
+    end      
 end
 
 skynet.start(function()
-    logger.info("server start,version is %s!",runconf.version)
+    logger.info("%s server start,version is %s!",start,runconf.version)
+    init(start,index)
     --start_gateway()
     --start_mysql()
     --start_redis()
-    start_login()
-
+    
     --skynet.newservice("testmysql",1)
     skynet.newservice("console")
     skynet.exit()
