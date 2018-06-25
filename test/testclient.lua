@@ -9,8 +9,8 @@ local logger=require "liblog"
 local LOGIN_HOST = runconf.service.server.loginserver.host
 local LOGIN_PORT = runconf.service.server.loginserver.port 
 
-local GAME_HOST = runconf.service.server.gameserver[1].host
-local GAME_PORT = runconf.service.server.gameserver[2].port
+local GAME_HOST = runconf.service.server.gameserver.address
+local GAME_PORT = runconf.service.server.gameserver.port
 
 local gameserver = "gameserver1"
 
@@ -86,22 +86,23 @@ function CMD.login(token, sdkid, noclose)
 	socket.close(fd)	-- 认证成功，断开与登录服务器的连接
 
 	local user = crypt.base64decode(string.sub(result, 4,#result))		-- base64(uid:subid)
-	logger.dedug(user)
+	--logger.dedug(user)
 	local result = string.split(user, ":")
 	UID = tonumber(result[1])
 
 	print(string.format("login ok, user %s, uid %d", user, UID))
- --[[ 
+ ---[[ 
 	-- 以下代码与游戏服务器握手
-	fd = assert(socket.connect(GAME_HOST, GAME_PORT))
+	fd = assert(socket.open(GAME_HOST, GAME_PORT))
 	index = index + 1
 	local handshake = string.format("%s@%s#%s:%d",
 		crypt.base64encode(result[1]),
 		crypt.base64encode(gameserver),
 		crypt.base64encode(result[2]),
 		index)
-	print("handshake=%s", handshake)
+
 	local hmac = crypt.hmac_hash(secret, handshake)
+	logger.debug(handshake .. ":" .. crypt.base64encode(hmac))
 
 	send_package(handshake .. ":" .. crypt.base64encode(hmac))
 

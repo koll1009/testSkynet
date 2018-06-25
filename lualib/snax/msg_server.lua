@@ -1,4 +1,5 @@
 local skynet = require "skynet"
+local logger=require "liblog"
 require "skynet.manager"
 local gateserver = require "snax.gateserver"
 local netpack = require "netpack"
@@ -95,6 +96,7 @@ end
 
 --生成用户名
 function server.username(uid, subid, servername)
+	logger.debug(uid..subid..servername)
 	return string.format("%s@%s#%s", b64encode(uid), b64encode(servername), b64encode(tostring(subid)))
 end
 
@@ -149,8 +151,7 @@ function server.start(conf)
 
 	-- 网关服务器open（打开监听）回调
 	function handler.open(source, gateconf)
-		--local servername = assert(gateconf.name)
-		--return conf.register_handler(servername)
+		return conf.register_handler(gateconf.nodename,gateconf.servicename)
 	end
 
 	-- 接收到客户端连接
@@ -178,7 +179,7 @@ function server.start(conf)
 	local auth_handler = conf.auth_handler
 	local online_handler = conf.online_handler
 
-	-- atomic , no yield
+
 	local function do_auth(fd, message, addr)
 		local username, index, hmac = string.match(message, "([^:]*):([^:]*):([^:]*)")
 		local u = user_online[username]
@@ -193,21 +194,22 @@ function server.start(conf)
 		end
 
 		local text = string.format("%s:%s", username, index)
-		local v = crypt.hmac_hash(u.secret, text)	-- equivalent to crypt.hmac64(crypt.hashkey(text), u.secret)
+		local v = crypt.hmac_hash(u.secret, text)	
 		if v ~= hmac then
 			return "401 Unauthorized"
 		end
 
-		u.version = idx
-		u.fd = fd
-		u.ip = addr
+		u.version = idx --版本号
+		u.fd = fd  --fd
+		u.ip = addr --客户端地址
 		connection[fd] = u
 
 		auth_handler(username, fd)
 	end
 
 	local function auth(fd, addr, msg, sz)
-		local message = netpack.tostring(msg, sz)
+		local message = netpack.tostring(msg, sz) 
+
 		local ok, result = pcall(do_auth, fd, message, addr)
 		if not ok then
 			skynet.error(result)
@@ -248,7 +250,7 @@ function server.start(conf)
 		local ok, err = pcall(do_request, fd, message)
 		-- not atomic, may yield
 		if not ok then
-			skynet.error(string.format("Invalid package %s : %s", err, message))
+			logger.warning("Invalid package %s : %s", err, message)
 			if connection[fd] then
 				gateserver.closeclient(fd)
 			end

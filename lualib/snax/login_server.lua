@@ -206,9 +206,10 @@ local function launch_master(conf)
 end
 
 local function login(conf)
-	local name = "." .. (conf.name or "login")
+	local name = "." .. (conf.servicename or "login")
 	skynet.start(function()
 		local loginmaster = skynet.localname(name)	--查询loginmaster地址
+		logger.debug(name)
 		if loginmaster then
 			local auth_handler = assert(conf.auth_handler)
 			launch_master = nil

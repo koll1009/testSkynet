@@ -1,4 +1,4 @@
-local start,index=...
+local start=...
 local skynet= require "skynet"
 local logger=require "liblog"
 require "skynet.manager"
@@ -7,15 +7,18 @@ local runconf = require(skynet.getenv("runconfig"))
 
 logger.set_name("startService")
 
-local function start_gameserver(index)
-    logger.info("now start gameserver%d!",index)
-    local gameconf=runconf.service.server.gameserver[tonumber(index)]
+local function start_gameserver()
+    logger.info("now start gameserver  !")
+    local gameconf=runconf.service.server.gameserver
     logger.debug("gameconf %s",tostring(gameconf))
-    local gate=skynet.uniqueservice("gate/gateService")
-    skynet.name("."..gameconf.name,gate)
+    local gate=skynet.uniqueservice("gateService")
+    skynet.name("."..gameconf.servicename,gate)
+    logger.debug("%s gate service name is %s",gameconf.nodename,"."..gameconf.servicename)
     skynet.call(gate,"lua","init")--初始化
     skynet.call(gate,"lua","open",gameconf)
-    cluster.open(gameconf.name)
+    cluster.open(gameconf.nodename)
+     
+    logger.debug(tostring(NODE))
    -- skynet.call(gate,)
 end
 
@@ -40,16 +43,18 @@ end
 
 local function start_login()
     logger.info("now start login service")
-    logger.debug("loginconf %s",tostring(loginconf))
-    skynet.newservice( "login/loginService" ) 
-    cluster.open(runconf.service.server.loginserver.name) --部署多服节点
+    local login=skynet.newservice( "loginService" ) 
+    local loginconf=runconf.service.server.loginserver
+    logger.debug("login conf is %s",tostring(loginconf))
+   -- skynet.name("."..loginconf.servicename,login)
+    cluster.open(loginconf.nodename) --部署多服节点
 end
 
-local function init(start,index)
+local function init(start)
     if start=="login" then 
         start_login()
     elseif start=="game" then
-        start_gameserver(index)
+        start_gameserver()
     else
         logger.error("error server type,just game or login")
     end      
@@ -57,7 +62,7 @@ end
 
 skynet.start(function()
     logger.info("%s server start,version is %s!",start,runconf.version)
-    init(start,index)
+    init(start)
     --start_gateway()
     --start_mysql()
     --start_redis()

@@ -17,22 +17,17 @@ return {
 			loginserver={
 				host="127.0.0.1",
 				port=8081,
-				name="loginserver",
+				nodename="loginserver",
+				servicename="login",
 				multilogin=false,
 				instance=8
 			},
 			gameserver={ 
-				[1]={
-					address="127.0.0.1",
-					port=8082,
-					name="gameserver1"
-				},
-				[2]={
-					address="127.0.0.1",
-					port=8083,
-					name="gameserver2"
-				}
-			}	
+				address="127.0.0.1",
+				port=8082,
+				nodename="gameserver1",
+				servicename="gamegate1"
+			},	
 		}
     } 
 }

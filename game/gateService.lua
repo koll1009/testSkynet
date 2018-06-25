@@ -3,12 +3,17 @@ local crypt = require "crypt"
 local skynet = require "skynet"
 local cluster = require "cluster"
 local logger=require "liblog"
+local runconf = require(skynet.getenv("runconfig")) 
 
 local server = {}
 local users = {}		-- uid -> u
 local username_map = {}		-- username -> u
 local internal_id = 0
 local agent_pool = {}
+
+local nodename=runconf.service.server.gameserver.nodename
+local login=runconf.service.server.loginserver.nodename
+local loginservice="."..runconf.service.server.loginserver.servicename
 
 server.expired_number = 128
 
@@ -21,37 +26,18 @@ function server.init_handler()
 	local n = maxclient // 10
 	logger.info("precreate %d agents", n)
 	for i = 1, n do
-		--local agent = assert(skynet.newservice("msgagent"), string.format("precreate agent %d of %d error", i, n))
-		--table.insert(agent_pool, agent)
+		local agent = assert(skynet.newservice("msgagent"), string.format("precreate agent %d of %d error", i, n))
+		table.insert(agent_pool, agent)
 	end
 	max_agent = 2 * maxclient
 	curr_agent = n
 end
 
--- 与游服握手成功后回调
+-- 客户端与游戏服务器handshake成功后回调
 function server.auth_handler(username, fd)
 	local uid = msgserver.userid(username)
-	uid = tonumber(uid)
-
-	LOG_INFO("notify agent uid=%d is real login", uid)
-	skynet.call(users[uid].agent, "lua", "auth", uid, fd)	-- 通知agent认证成功，玩家真正处于登录状态了
-end
-
-function server.online_handler(uid, fd)
-	skynet.call(users[uid].agent, "lua", "online", uid, fd)
-end
-
-
--- command login处理函数
--- 玩家通过登录服务器认证后，调用此函数 uid用户id secret密钥
-function server.login_handler(uid, secret)
-	if users[uid] then
-		logger.error("%d is already login", uid)
-		error(errmsg)
-	end
-
-	internal_id = internal_id + 1 --分配服务器内部id
-	local username = msgserver.username(uid, internal_id, NODE_NAME) --通过用户id，服务器内部id和服务器名生成唯一用户名
+	--uid = tonumber(uid)
+ 
 	local agent = table.remove(agent_pool) --取一个agent服务
 	if not agent then
 		if curr_agent < max_agent then
@@ -62,26 +48,43 @@ function server.login_handler(uid, secret)
 			error("too many agents")
 		end
 	end
+	users[uid].agent=agent --分配agent
+	skynet.call(agent, "lua", "init", users[uid])	-- 通知agent认证成功，玩家真正处于登录状态了
+end
 
+function server.online_handler(uid, fd)
+	--skynet.call(users[uid].agent, "lua", "online", uid, fd)
+end
+
+
+-- login命令的处理函数，玩家通过登录服务器认证后，调用此函数 uid用户id secret密钥
+function server.login_handler(uid, secret)
+	logger.info(" a client acquired login certification，user is %s，sec is %s",uid,secret)
+	if users[uid] then
+		logger.error("%d is already login", uid)
+		error(errmsg)
+	end
+
+	internal_id = internal_id + 1 --分配服务器内部id
+ 
+	local username = msgserver.username(uid, internal_id, nodename) --通过用户id，服务器内部id和服务器名生成唯一用户名
+	
 	local u = {
 		username = username,
-		agent = agent,
 		uid = uid,
 		subid = internal_id,
+		sc=secret
 	}
-
-	-- trash subid (no used)
-	skynet.call(agent, "lua", "login", uid, internal_id, secret)
 
 	users[uid] = u
 	username_map[username] = u
 
-	msgserver.login(username, secret)
+	msgserver.login(username, secret) --记录密钥，用于解密
 
 	return internal_id
 end
 
--- call by agent
+
 -- 内部命令logout处理函数
 function server.logout_handler(uid, subid)
 	local u = users[uid]
@@ -92,7 +95,7 @@ function server.logout_handler(uid, subid)
 		users[uid] = nil
 		username_map[u.username] = nil
 		
-		pcall(cluster.call, "login", ".login_master", "logout", uid, subid)
+		pcall(cluster.call, login, ".login_master", "logout", uid, subid)
 		table.insert(agent_pool, u.agent)
 	end
 end
@@ -109,7 +112,7 @@ function server.kick_handler(uid, subid)
 		pcall(skynet.call, u.agent, "lua", "logout")
 	else
 		--这里是为了防止msgserver崩溃后，未通知loginserver而导致卡号
-		pcall(cluster.call, "login", ".login_master", "logout", uid, subid)
+		pcall(cluster.call, login, loginservice, "logout", uid, subid)
 	end
 end
 
@@ -121,16 +124,14 @@ function server.disconnect_handler(username)
 	end
 end
 
--- call by self (when recv a request from client)
 function server.request_handler(username, msg)
-	--local uid = msgserver.userid(username)
 	local u = username_map[username]
 	return skynet.tostring(skynet.rawcall(u.agent, "client", msg))
 end
 
--- 网关open后，注册登记函数
-function server.register_handler(name)
-
+-- 网关open后，注册登记函数,向login server注册自身信息
+function server.register_handler(nodename,servicename)
+	pcall(cluster.call,login,loginservice,"register_game",nodename,servicename)
 end
 
 -- 获取所有的在线agent列表
