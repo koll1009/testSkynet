@@ -38,6 +38,26 @@ function CMD.init()
 	curr_agent = n
 end
 
+function CMD.kick(uid)
+     
+    local u=user_online[uid]
+    local agent=connection[u.fd].agent
+
+    --1.关闭fd
+    gateserver.closeclient(u.fd)
+
+    --2.清空用户缓存
+    user_online[uid]=nil
+    connection[u.fd]=nil 
+
+    --3.关闭
+    pcall(skynet.call,agent,"lua","kick")
+    table.insert(agent_pool,agent)
+
+    --4.通知login server
+    pcall(cluster.call,login,loginservice,"logout_user",uid,nodename)
+end
+
 -- 向login server注册自身信息
 local function register_game(nodename,host,port,servicename)
 	return pcall(cluster.call,login,loginservice,"register_game",nodename,host,port,servicename)
@@ -78,11 +98,7 @@ function handler.disconnect(fd)
     handshake[fd] = nil
     local c = connection[fd]
     if c then
-        connection[fd] = nil
-        --注销
-       -- if conf.disconnect_handler then
-           -- conf.disconnect_handler(c.username)
-        --end
+        CMD.kick(c.uid)
     end
 end
 
@@ -135,10 +151,17 @@ local function do_auth(fd, message, addr)
 			error("too many agents")
 		end
     end
-    connection[fd]=agent
-
     skynet.call(agent,"lua","init",{ gate=skynet.self(),uid=uid,client_fd=fd,secret=ret.secret })
+    connection[fd]={
+        agent=agent，
+        uid=uid
+    }
 
+    --在登录服务器注册？
+    local ok=pcall(cluster.call,login,loginservice,"login_user",uid,nodename)
+    if not ok then 
+        return "pls try again"
+    end
 end
 
 local function auth(fd, addr, msg, sz)

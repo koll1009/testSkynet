@@ -34,6 +34,11 @@ end
 local sid=0
 function server.login_handler(uid,secret,token)
    -- logger.debug(type(uid))
+    local u=user_token[uid]
+    if u and u.gameserver then --已登录，kick
+        logger.debug("%s is already online",uid)
+        pcall(skynet.call,game_proxy[u.gameserver],"lua","kick",uid)
+    end
 
     user_token[uid]={
         uid=uid,
@@ -73,17 +78,21 @@ function CMD.logout_game(nodename)
 end
 
 --用户登录
-function CMD.login_user(nodename)
+function CMD.login_user(uid,nodename)
     local g=game[nodename]
     assert(g)
     g.users=g.users+1
+    local u=user_token[uid]
+    assert(u)
+    u.gameserver=nodename
 end
 
 --用户下线
-function CMD.logout_user(nodename)
+function CMD.logout_user(uid,nodename)
     local g=game[nodename]
     assert(g)
     g.users=g.users-1
+    user_token[uid]=nil
 end
 
 function CMD.auth(uid)

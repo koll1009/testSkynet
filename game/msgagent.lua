@@ -6,15 +6,8 @@ local logger=require "liblog"
 
 
 local cs = queue()
-local UID
-local SUB_ID
-local SECRET
-local FD
-local afktime = 0
-
-local gate		-- 游戏服务器gate地址
 local CMD = {}
-
+local agent
 local worker_co
 local running = false
 
@@ -59,18 +52,15 @@ local function worker()
 	end
 end
 
-local agent
+
 --当玩家通过login and game server双重认证后，会分配一个agent，并初始化
 function CMD.init(source,conf)
 	logger.debug("the agent inited for user %s",tostring(conf))
 	agent=conf
 end
 
-
-function CMD.logout(source)
-
-	logger.info("%s is logout", UID)
-	logout()
+function CMD.kick()
+	agent=nil
 end
 
 function CMD.afk(source)
