@@ -65,8 +65,6 @@ local function launch_slave(auth_handler)
         
 		socket.start(fd)
 
-		-- set socket buffer limit (8K)
-		-- If the attacker send large package, close the socket
 		socket.limit(fd, 8192)
 
 		local challenge = crypt.randomkey()   
@@ -99,9 +97,9 @@ local function launch_slave(auth_handler)
 		local token = crypt.desdecode(secret, crypt.base64decode(etoken)) --解密token数据
 
 		logger.debug("server receive token %s",token)
-		local ok, server, uid = pcall(auth_handler, token) --调用认证函数
+		local ok, uid = pcall(auth_handler, token) --调用认证函数
 
-		return ok, server, uid, secret
+		return ok, uid, secret,token
 	end
 
 	local function ret_pack(fd, ok, err, ...)
@@ -131,42 +129,41 @@ local user_login = {}	-- key:uid value:true 表示玩家登录记录
 
 local function accept(conf, s, fd, addr)
 	 
-	local ok, server, uid, secret = skynet.call(s, "lua",  fd, addr) --调用slave处理认证过程，返回游服信息，用户id以及密钥
-	socket.start(fd)  
+	local ok, uid, secret,token = skynet.call(s, "lua",  fd, addr) --调用slave处理认证过程
 
 	-- 认证失败，有两种可能，nil是socket error，false是认证失败
 	if not ok then
 		if ok ~= nil then
 			logger.debug("401 Unauthorized")
 			write("response 401", fd, "401 Unauthorized")
-		end
-		error(server)
-	end
+        end
+        logger.error("sock error in auth")
+		error("sock error in auth") 
+    end
 
-	-- 一个用户在走登录流程时，禁止同一用户在别处登录
+    --禁止多重登录
 	if not conf.multilogin then
 		if user_login[uid] then
 			write("response 406", fd, "406 Not Acceptable")
-			logger.error("406 Not Acceptable uid=%d", uid)
+			LOG_ERROR("406 Not Acceptable uid=%d", uid)
 			error(string.format("User %s is already login", uid))
 		end
-
 		user_login[uid] = true
     end
     
 	-- 回调登录服务器login_hander
-	local ok, err = pcall(conf.login_handler, server, uid, secret)
+	local ok, sid,ret = pcall(conf.login_handler, uid, secret,token)
 
 	user_login[uid] = nil	
 
 	if ok then
-		err = err or ""
-		write("response 200", fd, "200 "..crypt.base64encode(uid .. ":" .. err))
+		write("response 200", fd, "200 "..crypt.base64encode(uid .. ":"..sid..":" .. tostring(ret)))
 	else
 		logger.debug("403 Forbidden uid=%d", uid)
 		write("response 403", fd, "403 Forbidden")
 		error(err)
-	end
+    end
+    
 end
 
 local function launch_master(conf)
@@ -182,7 +179,7 @@ local function launch_master(conf)
 	end)
 
 	for i=1,instance do
-		table.insert(slave, skynet.newservice(SERVICE_NAME))
+		table.insert(slave, skynet.newservice(SERVICE_NAME,i))
 	end
 
 	skynet.error(string.format("login server listen at : %s %d", host, port))
@@ -199,26 +196,27 @@ local function launch_master(conf)
 			if err ~= socket_error then
 				logger.debug( "invalid client (fd = %d) error = %s", fd, err)
 			end
-			socket.start(fd)
 		end
-		socket.close(fd)
+		socket.close_fd(fd)
 	end)
 end
 
-local function login(conf)
+local function login(conf,index)
 	local name = "." .. (conf.servicename or "login")
 	skynet.start(function()
 		local loginmaster = skynet.localname(name)	--查询loginmaster地址
-		logger.debug(name)
-		if loginmaster then
+        if loginmaster then
+            logger.debug("login slave start %s,%s",name,index)
+            logger.set_name(name.."_slave"..index)
 			local auth_handler = assert(conf.auth_handler)
 			launch_master = nil
 			conf = nil
 			launch_slave(auth_handler)	--启动login slave
-		else
+        else
+            logger.set_name(name.."_master")
 			launch_slave = nil
 			conf.auth_handler = nil
-			assert(conf.login_handler)
+			--assert(conf.login_handler)
 			assert(conf.command_handler)
 			skynet.register(name)
 			launch_master(conf)		--启动login master

@@ -59,10 +59,11 @@ local function worker()
 	end
 end
 
+local agent
 --当玩家通过login and game server双重认证后，会分配一个agent，并初始化
-function CMD.init(source, user)
-	logger.debug("one agent inited for user %s",tostring(user))
-
+function CMD.init(source,conf)
+	logger.debug("the agent inited for user %s",tostring(conf))
+	agent=conf
 end
 
 
@@ -79,6 +80,9 @@ function CMD.afk(source)
 end
 
 local function msg_unpack(msg, sz)
+	logger.debug(type(msg))
+	logger.debug(skynet.tostring(msg,sz))
+	--[[ 
 	local data = skynet.tostring(msg, sz)
 	local netmsg = protobuf.decode("netmsg.NetMsg", data)
 
@@ -88,6 +92,7 @@ local function msg_unpack(msg, sz)
 	end
 	
 	return netmsg
+	--]]
 end
 
 local function msg_pack(data)

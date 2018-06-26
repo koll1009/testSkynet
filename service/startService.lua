@@ -11,15 +11,11 @@ local function start_gameserver()
     logger.info("now start gameserver  !")
     local gameconf=runconf.service.server.gameserver
     logger.debug("gameconf %s",tostring(gameconf))
-    local gate=skynet.uniqueservice("gateService")
+    local gate=skynet.uniqueservice("gated")
     skynet.name("."..gameconf.servicename,gate)
-    logger.debug("%s gate service name is %s",gameconf.nodename,"."..gameconf.servicename)
     skynet.call(gate,"lua","init")--初始化
     skynet.call(gate,"lua","open",gameconf)
     cluster.open(gameconf.nodename)
-     
-    logger.debug(tostring(NODE))
-   -- skynet.call(gate,)
 end
 
 local function start_mysql()
@@ -43,10 +39,9 @@ end
 
 local function start_login()
     logger.info("now start login service")
-    local login=skynet.newservice( "loginService" ) 
+    local login=skynet.newservice( "logind" ) 
     local loginconf=runconf.service.server.loginserver
-    logger.debug("login conf is %s",tostring(loginconf))
-   -- skynet.name("."..loginconf.servicename,login)
+    --logger.debug("login conf is %s",tostring(loginconf))
     cluster.open(loginconf.nodename) --部署多服节点
 end
 
