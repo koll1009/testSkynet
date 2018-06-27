@@ -31,7 +31,8 @@ local function msg_pack(data)
 end
 
 local function msg_dispatch(netmsg)
-	 
+	skynet.ignoreret() --gate分发而来，不需要ret
+
 end
 
 skynet.register_protocol {
