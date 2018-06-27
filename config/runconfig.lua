@@ -20,7 +20,8 @@ return {
 				nodename="loginserver",
 				servicename="login",
 				multilogin=false,
-				instance=8
+				instance=8,
+				hbinterval=6000
 			},
 			gameserver={ 
 				address="127.0.0.1",

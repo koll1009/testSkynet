@@ -10,10 +10,9 @@ local socketdriver = require "socketdriver"
 local b64encode = crypt.base64encode
 local b64decode = crypt.base64decode
 
-local CMD = {}
-local users = {}		
-local username_map = {}		
-local internal_id = 0
+local CMD = {}	
+local user_online = {}	
+local connection={}	
 local agent_pool = {}
 
 local nodename=runconf.service.server.gameserver.nodename
@@ -25,7 +24,7 @@ CMD.expired_number = 128
 local max_agent
 local curr_agent
 
---网关的init函数，用于初始化agent pool
+--网关的init命令，用于初始化agent pool
 function CMD.init()
 	local maxclient = (tonumber(skynet.getenv("maxclient")) or 1024)
 	local n = maxclient // 10
@@ -38,8 +37,9 @@ function CMD.init()
 	curr_agent = n
 end
 
+--kick，主动下线在线用户
 function CMD.kick(uid)
-     
+    logger.info("kick user %s from %s",uid,nodename)
     local u=user_online[uid]
     local agent=connection[u.fd].agent
 
@@ -58,33 +58,29 @@ function CMD.kick(uid)
     pcall(cluster.call,login,loginservice,"logout_user",uid,nodename)
 end
 
--- 向login server注册自身信息
-local function register_game(nodename,host,port,servicename)
-	return pcall(cluster.call,login,loginservice,"register_game",nodename,host,port,servicename)
+--心跳包
+function CMD.heartbeat()
+
 end
+
 
 skynet.register_protocol {
 	name = "client",
 	id = skynet.PTYPE_CLIENT,
 }
 
-local user_online = {}	
 local handshake = {}	
-local connection={}
-
- 
-
 local handler = {}
 -- 内部命令处理
 function handler.command(cmd, source, ...)
-    logger.debug(cmd)
+    --logger.debug(cmd)
     local f = assert(CMD[cmd])
     return f(...)
 end
 
--- 网关服务器open（打开监听）回调
+-- 网关服务器open后回调，向login server注册信息
 function handler.open(source, gateconf)
-    return register_game(gateconf.nodename,gateconf.address or "0.0.0.0",gateconf.port,gateconf.servicename)
+    cluster.call(login,loginservice,"register_game",gateconf.nodename,gateconf.address or "0.0.0.0",gateconf.port,gateconf.servicename)
 end
 
 -- 接收到客户端连接
@@ -98,6 +94,7 @@ function handler.disconnect(fd)
     handshake[fd] = nil
     local c = connection[fd]
     if c then
+        logger.debug(c.uid)
         CMD.kick(c.uid)
     end
 end
@@ -123,14 +120,15 @@ local function do_auth(fd, message, addr)
     elseif not ret then 
         return "404 User not found"
     end
-    logger.debug(tostring(ret))
+    --logger.debug(tostring(ret))
 
-    --验证密钥
+    --使用密钥，验证信息的一致性
     local v = b64encode(crypt.hmac_hash(ret.secret, username))
     if v~=hmac then 
         return "401 Unauthorized"
     end
-
+    
+    --验证通过，保存在线用户信息
     local u={}
     u.fd = fd  --fd
     u.ip = addr --客户端地址
@@ -140,7 +138,6 @@ local function do_auth(fd, message, addr)
     u.sdkid=sdkid
     user_online[uid]=u
 
-    --验证通过
     local agent = table.remove(agent_pool)
 	if not agent then
 		if curr_agent < max_agent then
@@ -153,15 +150,13 @@ local function do_auth(fd, message, addr)
     end
     skynet.call(agent,"lua","init",{ gate=skynet.self(),uid=uid,client_fd=fd,secret=ret.secret })
     connection[fd]={
-        agent=agent，
+        agent=agent,
         uid=uid
     }
 
-    --在登录服务器注册？
-    local ok=pcall(cluster.call,login,loginservice,"login_user",uid,nodename)
-    if not ok then 
-        return "pls try again"
-    end
+    --在登录服务器注册
+    cluster.call(login,loginservice,"login_user",uid,nodename)
+    
 end
 
 local function auth(fd, addr, msg, sz)
@@ -189,13 +184,12 @@ end
 
 
 
-
 local function do_request(fd, message)
     local u = assert(connection[fd], "invalid fd")
    -- local size = string.unpack(">I4", message)
    -- message = message:sub(1,-5)
     logger.debug(type(message))
-    skynet.redirect(connection[fd],0,"client",fd,message)
+    skynet.redirect(u.agent,0,"client",fd,message)
 end
 
 local function request(fd, msg, sz)

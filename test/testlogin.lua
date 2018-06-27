@@ -118,6 +118,7 @@ function CMD.login(token, sdkid, noclose)
     print("handshake ok")
     print(  send_package("2:test:2"))
     
+
 	if not noclose then
 		socket.close(fd)
 	end
