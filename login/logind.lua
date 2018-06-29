@@ -122,7 +122,7 @@ function CMD.register_game(nodename,host,port,servicename)
 
         if not running then
             running=true
-            heartbeat()
+          --  heartbeat()
         end
 	end
 end

@@ -48,7 +48,7 @@ end
 
 local function write(service, fd, text)  --以size+data的方式发送
     local package = string.pack(">s2", text)
-	assert_socket(service, socket.write(fd, package), fd)
+	assert_socket(service, socket.write(fd, package), fd) 
 end
 
 local function read(service, fd)
@@ -67,8 +67,10 @@ local function launch_slave(auth_handler)
 
 		socket.limit(fd, 8192)
 
-		local challenge = crypt.randomkey()   
+		local challenge = crypt.randomkey()  
+ 
 		write("auth", fd, crypt.base64encode(challenge))
+		logger.debug("challenge is %s",crypt.base64encode(challenge))
 
 		local handshake = read("auth", fd)
 		local clientkey = crypt.base64decode(handshake)
@@ -77,11 +79,15 @@ local function launch_slave(auth_handler)
 			error "Invalid client key"
 		end
 		local serverkey = crypt.randomkey()
+		local test=crypt.dhexchange(serverkey)
+		logger.debug("serverkey is %s",crypt.base64encode(test))
+		
 		write("auth", fd, crypt.base64encode(crypt.dhexchange(serverkey)))
+		--logger.debug("serverkey:%d,serverdh is %s",tonumber(serverkey),crypt.base64encode(crypt.dhexchange(serverkey)))
 
 		local secret = crypt.dhsecret(clientkey, serverkey)
 
-		logger.debug("server secret is %s",crypt.hexencode(secret))
+		logger.debug("server secret is %s,client dhkey is %s ",crypt.base64encode(secret),handshake)
 
 		local response = read("auth", fd)
 		local hmac = crypt.hmac64(challenge, secret) --hmac加密challenge 看看是否和客户端发送过的验证一直
@@ -92,8 +98,10 @@ local function launch_slave(auth_handler)
 			error "challenge failed"
 		end
 
+		logger.debug("auth challenge succeed")
 		local etoken = read("auth", fd)
 
+		logger.debug("received token des and 64string is %s,%s",etoken,crypt.base64decode(etoken))
 		local token = crypt.desdecode(secret, crypt.base64decode(etoken)) --解密token数据
 
 		logger.debug("server receive token %s",token)
@@ -134,7 +142,7 @@ local function accept(conf, s, fd, addr)
 	-- 认证失败，有两种可能，nil是socket error，false是认证失败
 	if not ok then
 		if ok ~= nil then
-			logger.debug("401 Unauthorized")
+			logger.debug("401 Unauthorized,errmsg is %s",uid)
 			write("response 401", fd, "401 Unauthorized")
         end
         logger.error("sock error in auth")
