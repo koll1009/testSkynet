@@ -47,7 +47,8 @@ namespace Rinin
         public NetworkLogin()
         {
             client = new NetworkClient();
-            this.recvState = Erecv.RECVCHANLLENGECOUNT;
+            //this.recvState = Erecv.RECVCHANLLENGECOUNT;
+            this.recvState = Erecv.RECVCHALLENGE;
             this.sendstate = Esend.SENDCLIENTDH;
             buffer = new byte[BUFFERSIZE];
         }
@@ -62,7 +63,8 @@ namespace Rinin
             {
                 client.RecvCompleted += Client_RecvCompleted;
                 client.SendCompleted += Client_SendCompleted;
-                client.Recv(buffer, 0, TCPPACKSIZE);
+                // client.Recv(buffer, 0, TCPPACKSIZE);
+                client.RecvPackage();
             }
             catch
             {
@@ -72,8 +74,10 @@ namespace Rinin
 
         private void sendClientDH(NetworkIOArgs args)
         {
-            this.client.Recv(this.buffer, 0, 2);
             this.sendstate = Esend.SENDCHALLENGE;
+            //this.client.Recv(this.buffer, 0, 2);
+            
+            this.client.RecvPackage();
         }
         private void sendChallenge(NetworkIOArgs args)
         {
@@ -118,13 +122,13 @@ namespace Rinin
 
         private void recvServerDHCount(NetworkIOArgs args)
         {
-            int count = this.getBigEndianCount(args.Data);
-            if (count < BUFFERSIZE)
-            {
-                Array.Clear(args.Data, 0, args.Count);
-                client.Recv(args.Data, 0, count);
-                this.recvState = Erecv.RECVSERVERDH;
-            }
+            //int count = this.getBigEndianCount(args.Data);
+            //if (count < BUFFERSIZE)
+            //{
+            //    Array.Clear(args.Data, 0, args.Count);
+            //    client.Recv(args.Data, 0, count);
+            //    this.recvState = Erecv.RECVSERVERDH;
+            //}
         }
 
         private void recvServerDH(NetworkIOArgs args)
@@ -143,13 +147,14 @@ namespace Rinin
 
         private void recvChallengeCount(NetworkIOArgs args)
         {
-            int count = this.getBigEndianCount(args.Data);
-            if (count < BUFFERSIZE)
-            {
-                Array.Clear(args.Data, 0, args.Count);
-                client.Recv(args.Data, 0, count);
-                this.recvState = Erecv.RECVCHALLENGE;
-            }
+            //int count = this.getBigEndianCount(args.Data);
+            //if (count < BUFFERSIZE)
+            //{
+            //    Array.Clear(args.Data, 0, args.Count);
+            //    client.Recv(args.Data, 0, count);
+            //    this.recvState = Erecv.RECVCHALLENGE;
+               
+            //}
         }
 
         private void recvChallenge(NetworkIOArgs args)
@@ -157,7 +162,8 @@ namespace Rinin
             this.challenge=Convert.FromBase64String(Encoding.UTF8.GetString(args.Data, 0, args.Count));
 
             Array.Clear(args.Data, 0, args.Count);
-            this.recvState = Erecv.RECVSERVERDHCOUNT;
+            this.recvState = Erecv.RECVSERVERDH;
+            //this.recvState = Erecv.RECVSERVERDHCOUNT;
             byte[] clientkey = kcrypt.randomkey();
             this.clientkey = BitConverter.ToUInt64(clientkey, 0);
             client.SendPackage(kcrypt.encode64str(kcrypt.dhexchange(this.clientkey)));

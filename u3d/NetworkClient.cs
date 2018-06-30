@@ -29,6 +29,7 @@ namespace Rinin
     {
         public byte[] Data { get; set; }
         public int Count { get; set; }
+        public bool isAlloc { get; set; }
         public NetworkIOArgs(NetworkState c, byte[] d,int s):base(c)
         {
             this.Data = d;
@@ -36,7 +37,6 @@ namespace Rinin
         }
     }
     public delegate void  NetworkCallback(NetWorkArgs args);
-
     public enum NetworkState
     {
         Connecting=0,
@@ -46,7 +46,6 @@ namespace Rinin
         Sended,
         Closed
     }
-
     public class NetworkClient
     {
         private TcpClient sock;
@@ -55,11 +54,14 @@ namespace Rinin
         public event NetworkCallback SendCompleted;
         private NetworkState status;
         private const int TCPPACKBYTES=2;
+        private const int BUFFERSIZE = 4096;
+        private byte[] buffer;
+        private bool recvIdle;
         public NetworkClient()
         {
             this.status = NetworkState.DisConnected;
-            sock = new TcpClient();
-            sock.NoDelay = true;
+            this.buffer = new byte[BUFFERSIZE];
+            this.recvIdle = true;
         }
 
         public bool  Connect(string host, int port)
@@ -67,6 +69,8 @@ namespace Rinin
             IPAddress addr;
             if (!IPAddress.TryParse(host, out addr))
                 return false;
+            sock = new TcpClient();
+            sock.NoDelay = true;
             sock.Connect(addr, port);
             this.status = NetworkState.Connected;
             return true;
@@ -77,6 +81,8 @@ namespace Rinin
             if (!IPAddress.TryParse(host, out addr))
                 return false;
 
+            sock = new TcpClient();
+            sock.NoDelay = true;
             sock.BeginConnect(addr, port, (ar) =>
             {
                 TcpClient client = (TcpClient)ar.AsyncState;
@@ -109,42 +115,96 @@ namespace Rinin
         }
         private void recvCallback(IAsyncResult ar)
         {
-            NetworkStream s;
-            recvObject obj = ar.AsyncState as recvObject;
-            s = obj.stream;
-            int n =s.EndRead(ar);
-            int count = obj.size - obj.offet;
+            try
+            {
+                NetworkStream s;
+                recvObject obj = ar.AsyncState as recvObject;
+                s = obj.stream;
+                int n = s.EndRead(ar);
+                int count = obj.size - obj.offet;
 
-            if (n == 0)
-            {
-                NetworkCallback temp = RecvCompleted;
-                if (temp != null)
-                    temp(new NetworkIOArgs(NetworkState.Closed,obj.buff,obj.offet));
+                if (n == 0)
+                {
+                    this.Close();
+                    NetworkCallback temp = RecvCompleted;
+                    if (temp != null)
+                        temp(new NetworkIOArgs(NetworkState.Closed,null,0));
+                }
+                else if (n < count)
+                {
+                    int offet = obj.offet + n;
+                    int size = obj.size - offet;
+                    s.BeginRead(obj.buff, offet, size, recvCallback, new recvObject(obj.buff, offet, obj.size, s));
+                }
+                else
+                {
+                    this.recvIdle = true;
+                    NetworkCallback temp = RecvCompleted;
+                    if (temp != null)
+                        temp(new NetworkIOArgs(NetworkState.Recved, obj.buff, obj.size));
+                }
             }
-            else if (n < count)
+            catch
             {
-                int offet = obj.offet + n;
-                int size =obj.size - offet;
-                s.BeginRead(obj.buff, offet, size, recvCallback, new recvObject(obj.buff, offet, obj.size, s));
-            }
-            else
-            {
-                NetworkCallback temp = RecvCompleted;
-                if (temp != null)
-                    temp(new NetworkIOArgs(NetworkState.Recved,obj.buff,obj.size));
+                this.Close();
             }
 
         }
-        public void Recv(byte[] buf, int offset,int size)
+        private  void Recv(byte[] buf, int offset,int size)
         {
             if (this.status != NetworkState.Connected)
                 throw new NetworkException("NetworkClient:client did not connect server yet");
             NetworkStream sockstream = sock.GetStream();
             sockstream.BeginRead( buf, offset, size, recvCallback, new recvObject(buf, offset, size,sockstream));
         }
+        public void RecvPackage()
+        {
+            if (!this.recvIdle)
+                return;
+            this.recvIdle = false;
+
+            Array.Clear(this.buffer, 0, BUFFERSIZE);
+            NetworkStream stream = this.sock.GetStream();
+            stream.BeginRead(this.buffer, 0, TCPPACKBYTES, (ar) => {
+                try
+                {
+                    int n = stream.EndRead(ar);
+                    int count;
+                    if (n == 0)
+                    {
+                        this.Close();
+                        NetworkCallback temp = RecvCompleted;
+                        if (temp != null)
+                            temp(new NetworkIOArgs(NetworkState.Closed, null, 0));
+                    }
+                    else if (n == TCPPACKBYTES)
+                    {
+                        count = buffer[0] << 8 | buffer[1];
+                        Array.Clear(buffer, 0, TCPPACKBYTES);
+                        if (count <= BUFFERSIZE)
+                            this.Recv(this.buffer, 0, count);
+                        else
+                        {
+
+                        }
+                    }
+                    else 
+                        throw new NetworkException("NetworkClient:wrong packet size");
+
+                }
+                catch
+                {
+                    this.Close();
+                }
+
+            }, null);
+        }
 
         public void Recv(byte[] buf)
         {
+            if (!this.recvIdle)
+                return;
+            this.recvIdle = false;
             this.Recv(buf, 0, buf.Length);
         }
 
@@ -193,6 +253,8 @@ namespace Rinin
         public void Close()
         {
             sock.Close();
+            sock = null;
+            this.status = NetworkState.DisConnected;
         }
     }
 
