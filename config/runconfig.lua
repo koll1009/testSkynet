@@ -21,7 +21,7 @@ return {
 				servicename="login",
 				multilogin=false,
 				instance=8,
-				hbinterval=60000
+				hbinterval=500
 			},
 			gameserver={ 
 				address="0.0.0.0",

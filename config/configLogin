@@ -27,6 +27,9 @@ luaservice	= app_root.."service/?.lua;"..
 lua_path	= app_root.."config/?.lua;" ..
             app_root.."lualib/?.lua;" ..
              app_root.."preload/?.lua;"..
+             app_root.."pb_server/?.lua;"..
+             app_root.."3rd/?.lua;"..
+             app_root.."3rd/protobuf/?.lua;"..
 
             skynet_root.."lualib/?.lua;" ..
             skynet_root.."lualib/compat10/?.lua;" ..

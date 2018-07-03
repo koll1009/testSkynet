@@ -7,6 +7,7 @@ local table = table
 local string = string
 local assert = assert
 local logger=require "liblog"
+local cjson=require "cjson"
 
 --[[
 
@@ -70,7 +71,7 @@ local function launch_slave(auth_handler)
 		local challenge = crypt.randomkey()  
  
 		write("auth", fd, crypt.base64encode(challenge))
-		logger.debug("challenge is %s",crypt.base64encode(challenge))
+		--logger.debug("challenge is %s",crypt.base64encode(challenge))
 
 		local handshake = read("auth", fd)
 		local clientkey = crypt.base64decode(handshake)
@@ -80,14 +81,14 @@ local function launch_slave(auth_handler)
 		end
 		local serverkey = crypt.randomkey()
 		local test=crypt.dhexchange(serverkey)
-		logger.debug("serverkey is %s",crypt.base64encode(test))
+		--logger.debug("serverkey is %s",crypt.base64encode(test))
 		
 		write("auth", fd, crypt.base64encode(crypt.dhexchange(serverkey)))
 		--logger.debug("serverkey:%d,serverdh is %s",tonumber(serverkey),crypt.base64encode(crypt.dhexchange(serverkey)))
 
 		local secret = crypt.dhsecret(clientkey, serverkey)
 
-		logger.debug("server secret is %s,client dhkey is %s ",crypt.base64encode(secret),handshake)
+		--logger.debug("server secret is %s,client dhkey is %s ",crypt.base64encode(secret),handshake)
 
 		local response = read("auth", fd)
 		local hmac = crypt.hmac64(challenge, secret) --hmac加密challenge 看看是否和客户端发送过的验证一直
@@ -101,10 +102,10 @@ local function launch_slave(auth_handler)
 		logger.debug("auth challenge succeed")
 		local etoken = read("auth", fd)
 
-		logger.debug("received token des and 64string is %s,%s",etoken,crypt.base64decode(etoken))
+		--logger.debug("received token des and 64string is %s,%s",etoken,crypt.base64decode(etoken))
 		local token = crypt.desdecode(secret, crypt.base64decode(etoken)) --解密token数据
 
-		logger.debug("server receive token %s",token)
+		--logger.debug("server receive token %s",token)
 		local ok, uid = pcall(auth_handler, token) --调用认证函数
 
 		return ok, uid, secret,token
@@ -142,8 +143,8 @@ local function accept(conf, s, fd, addr)
 	-- 认证失败，有两种可能，nil是socket error，false是认证失败
 	if not ok then
 		if ok ~= nil then
-			logger.debug("401 Unauthorized,errmsg is %s",uid)
-			write("response 401", fd, "401 Unauthorized")
+			logger.info("401 Unauthorized,errmsg is %s",uid)
+			write("response 401", fd, "401 Unauthorized"..uid)
         end
         logger.error("sock error in auth")
 		error("sock error in auth") 
@@ -152,8 +153,8 @@ local function accept(conf, s, fd, addr)
     --禁止多重登录
 	if not conf.multilogin then
 		if user_login[uid] then
-			write("response 406", fd, "406 Not Acceptable")
-			LOG_ERROR("406 Not Acceptable uid=%d", uid)
+			write("response 406", fd, "406 Not Acceptable")			
+			logger.error("406 Not Acceptable uid=%d", uid)
 			error(string.format("User %s is already login", uid))
 		end
 		user_login[uid] = true
@@ -165,11 +166,21 @@ local function accept(conf, s, fd, addr)
 	user_login[uid] = nil	
 
 	if ok then
-		write("response 200", fd, "200 "..crypt.base64encode(uid .. ":"..sid..":" .. tostring(ret)))
+		local res={}
+			res.code=200
+			res.uid=uid
+			res.sid=sid 
+			res.servers=ret
+			write("response 200", fd,cjson.encode(res))
+		--write("response 200", fd, "200 "..crypt.base64encode(uid .. ":"..sid..":" .. tostring(ret)))
 	else
 		logger.debug("403 Forbidden uid=%d", uid)
-		write("response 403", fd, "403 Forbidden")
-		error(err)
+		local res={}
+			res.code=403
+			res.errmsg="Forbidden"
+			write("response 403", fd,cjson.encode(res))
+		--write("response 403", fd, "403 Forbidden")
+		error(sid)
     end
     
 end

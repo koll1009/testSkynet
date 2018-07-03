@@ -3,6 +3,7 @@ local logger=require "liblog"
 local cluster=require "cluster"
 local login=require "snax.login_Service"
 local runconf=require "runconfig"
+local NetApi=require "NetApi"
 
 local server =runconf.service.server.loginserver
 local game={} --保存游戏服务器
@@ -10,20 +11,20 @@ local game_proxy={} --保存rpc地址
 local CMD={} --master的lua消息处理命令集
 local user_token={} 
 
-local function auth(token,sdkid)
+local function auth(token)
     return "123" 
 end
 
---登录服务器接收到客户端认证信息后调用，token格式暂定为user token:sdkid
+--登录服务器接收到客户端认证信息后调用
 --暂定为认证成功后返回服务器列表，所以server不用发
  function server.auth_handler(token)
-    logger.info("recv auth info:%s",token)
-	local ret = string.split(token, ":")
 
+	local ret = string.split(token, ":")
 	local token = ret[1]  
-	local sdkid = tonumber(ret[2]) 
+    local sdkid = tonumber(ret[2]) 
     local uid = auth(token, sdkid) --认证
-    logger.debug"auth ss"
+
+    --logger.debug"auth ss"
 	if not uid then
 		logger.error("auth failed")
 		error("auth failed")
@@ -122,7 +123,7 @@ function CMD.register_game(nodename,host,port,servicename)
 
         if not running then
             running=true
-          --  heartbeat()
+            heartbeat()
         end
 	end
 end
