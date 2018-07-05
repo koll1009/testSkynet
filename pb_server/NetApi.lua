@@ -63,7 +63,8 @@ local switch = {
 
 --server to client
 function NetApi.receiveMsg(msg)
-	local code, bytes = string.unpack("<I4<s4", msg)
+	local code, bytes = string.unpack("<I4z", msg)
+	print(code,bytes)
 	-- print("NetApi.receiveMsg", code, bytes)
 	NetApi.receiveProtoPacket(code, bytes)
 end

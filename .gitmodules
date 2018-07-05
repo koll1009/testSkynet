@@ -1,3 +1,6 @@
 [submodule "skynet"]
 	path = skynet
 	url = https://github.com/cloudwu/skynet.git
+[submodule "aoi"]
+	path = aoi
+	url = https://github.com/cloudfreexiao/skynet_aoi.git

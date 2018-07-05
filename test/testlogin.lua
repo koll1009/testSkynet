@@ -58,6 +58,8 @@ local index = 0
 function CMD.login(token, sdkid, noclose)
 	assert(token and sdkid)
 
+	socket.open(GAME_HOST,GAME_PORT)
+	--[[
 	-- 以下代码登录 loginserver
 	fd = assert(socket.open(LOGIN_HOST, LOGIN_PORT))
 	if fd then 
@@ -109,7 +111,7 @@ function CMD.login(token, sdkid, noclose)
 	logger.debug(handshake .. ":" .. crypt.base64encode(hmac))
 
 	send_package(handshake .. ":" .. crypt.base64encode(hmac))
----[[
+
 	result = read_package()
 	code = tonumber(string.sub(result, 1, 3))
 	assert(code == 200)

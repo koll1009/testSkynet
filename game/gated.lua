@@ -85,6 +85,7 @@ end
 
 -- 接收到客户端连接
 function handler.connect(fd, addr)
+    print("accept ",addr)
     handshake[fd] = addr  --保存fd和客户端ip地址
     gateserver.openclient(fd) --开启数据接收
 end
@@ -109,8 +110,9 @@ local function getuid(token)
 end
 local function do_auth(fd, message, addr)
     local username, hmac = string.match(message, "([^:]*):([^:]*)")
-    local uid,sid,sdkid=getuid(username)
     logger.debug("recv a client handshake info ,uid:%s,sid:%s,sdkid:%s",uid,sid,sdkid)
+    local uid,sid,sdkid=getuid(username)
+   
 
     --登录服取信息
     local ok,ret=pcall(cluster.call,login,loginservice,"auth",uid)
@@ -164,7 +166,7 @@ local function auth(fd, addr, msg, sz)
 
     local ok, result = pcall(do_auth, fd, message, addr)
     if not ok then
-        logger.warnning(result)
+        logger.error(result)
         result = "400 Bad Request"
     end
 
@@ -186,14 +188,12 @@ end
 
 local function do_request(fd, message)
     local u = assert(connection[fd], "invalid fd")
-   -- local size = string.unpack(">I4", message)
-   -- message = message:sub(1,-5)
-    logger.debug(type(message))
     skynet.redirect(u.agent,0,"client",fd,message)
 end
 
 local function request(fd, msg, sz)
     local message = netpack.tostring(msg, sz)
+
     logger.debug("recv data:%s",message)
     local ok, err = pcall(do_request, fd, message)
     -- not atomic, may yield

@@ -15,7 +15,7 @@ return {
 		},
 		server={
 			loginserver={
-				host="0.0.0.0",
+				host="192.168.224.129",
 				port=8081,
 				nodename="loginserver",
 				servicename="login",
@@ -24,7 +24,7 @@ return {
 				hbinterval=500
 			},
 			gameserver={ 
-				address="0.0.0.0",
+				address="192.168.224.129",
 				port=8082,
 				nodename="gameserver1",
 				servicename="gamegate1"

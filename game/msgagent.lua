@@ -21,16 +21,25 @@ function CMD.kick()
 end
 
 local function msg_unpack(msg, sz)
-	logger.debug(type(msg))
 	logger.debug(skynet.tostring(msg,sz))
-
+	return skynet.tostring(msg,sz)
 end
 
 local function msg_pack(data)
-	 
+	   
 end
 
+local function test(data)
+	if data and type(data)=="table" then 
+		 
+	end
+end
 local function msg_dispatch(netmsg)
+	
+	local NetApi=require "NetApi"
+	NetApi.callback.LoginData=test
+	NetApi.receiveMsg(netmsg)
+
 	skynet.ignoreret() --gate分发而来，不需要ret
 
 end

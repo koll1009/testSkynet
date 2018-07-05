@@ -201,7 +201,7 @@ local function launch_master(conf)
 		table.insert(slave, skynet.newservice(SERVICE_NAME,i))
 	end
 
-	skynet.error(string.format("login server listen at : %s %d", host, port))
+	logger.info("login server listen at : %s %d", host, port)
 	local id = socket.listen(host, port)
 	socket.start(id , function(fd, addr)
 	
@@ -225,7 +225,7 @@ local function login(conf,index)
 	skynet.start(function()
 		local loginmaster = skynet.localname(name)	--查询loginmaster地址
         if loginmaster then
-            logger.debug("login slave start %s,%s",name,index)
+            logger.info("login slave start %s,%s",name,index)
             logger.set_name(name.."_slave"..index)
 			local auth_handler = assert(conf.auth_handler)
 			launch_master = nil
