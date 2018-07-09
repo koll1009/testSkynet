@@ -14,6 +14,7 @@ local CMD = {}
 local user_online = {}	
 local connection={}	
 local agent_pool = {}
+local agent_uid={}
 
 local nodename=runconf.service.server.gameserver.nodename
 local login=runconf.service.server.loginserver.nodename
@@ -61,6 +62,10 @@ end
 --心跳包
 function CMD.heartbeat()
 
+end
+
+function CMD.getuid(agent)
+    return agent_uid[agent]
 end
 
 
@@ -155,6 +160,8 @@ local function do_auth(fd, message, addr)
         agent=agent,
         uid=uid
     }
+
+    agent_uid[agent]=uid
 
     --在登录服务器注册
     cluster.call(login,loginservice,"login_user",uid,nodename)

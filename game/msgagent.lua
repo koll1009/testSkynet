@@ -3,16 +3,22 @@ local queue = require "skynet.queue"
 local snax = require "snax"
 local netpack = require "netpack"
 local logger=require "liblog"
+local socket=require "socket"
+local runconf = require(skynet.getenv("runconfig"))
+local gameconf=runconf.service.server.gameserver
 
 
 local cs = queue()
 local CMD = {}
-local agent
+local agent={}
 
 --当玩家通过login and game server双重认证后，会分配一个agent，并初始化
 function CMD.init(source,conf)
 	logger.info("the agent inited for user %s",tostring(conf))
-	agent=conf
+	agent.fd = conf.fd  --fd
+    agent.secret=conf.secret
+    agent.uid=conf.uid
+    agent.sid=conf.sid
 end
 
 
@@ -20,8 +26,22 @@ function CMD.kick()
 	agent=nil
 end
 
+function CMD.enter_aoi(x,y,z,o)
+	skynet.call(".aoi","lua","player_enter",x,y,z,o)
+end
+
+function CMD.update_aoi(x,y,z,o)
+	skynet.call(".aoi","lua","update_position",x,y,z,o)
+end
+
+function CMD.async_aoi(markerid,x,y,z)
+	local fd=agent.fd
+	local uid=skynet.call("."..gameconf.servicename,"lua","getuid",markerid)
+	socket.write(fd,uid..x..y..z)
+end
+
+
 local function msg_unpack(msg, sz)
-	logger.debug(skynet.tostring(msg,sz))
 	return skynet.tostring(msg,sz)
 end
 
@@ -29,15 +49,11 @@ local function msg_pack(data)
 	   
 end
 
-local function test(data)
-	if data and type(data)=="table" then 
-		 
-	end
-end
+
+
 local function msg_dispatch(netmsg)
 	
 	local NetApi=require "NetApi"
-	NetApi.callback.LoginData=test
 	NetApi.receiveMsg(netmsg)
 
 	skynet.ignoreret() --gate分发而来，不需要ret
