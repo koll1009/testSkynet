@@ -52,11 +52,11 @@ function CMD.kick(uid)
     connection[u.fd]=nil 
 
     --3.关闭
-    pcall(skynet.call,agent,"lua","kick")
+    skynet.call(agent,"lua","kick")
     table.insert(agent_pool,agent)
 
     --4.通知login server
-    pcall(cluster.call,login,loginservice,"logout_user",uid,nodename)
+    cluster.call(login,loginservice,"logout_user",uid,nodename)
 end
 
 --心跳包
@@ -90,13 +90,14 @@ end
 
 -- 接收到客户端连接
 function handler.connect(fd, addr)
-    print("accept ",addr)
+    logger.info("accept client:%s ",addr)
     handshake[fd] = addr  --保存fd和客户端ip地址
     gateserver.openclient(fd) --开启数据接收
 end
 
 -- 连接断开回调
 function handler.disconnect(fd)
+    logger.info("remote socket close")
     handshake[fd] = nil
     local c = connection[fd]
     if c then
@@ -114,10 +115,9 @@ local function getuid(token)
 	return b64decode(uid), b64decode(sid), b64decode(sdkid)
 end
 local function do_auth(fd, message, addr)
-    local username, hmac = string.match(message, "([^:]*):([^:]*)")
-    logger.debug("recv a client handshake info ,uid:%s,sid:%s,sdkid:%s",uid,sid,sdkid)
+    local username, hmac = string.match(message, "([^:]*):([^:]*)")  
     local uid,sid,sdkid=getuid(username)
-   
+    logger.debug("recv a client handshake info ,uid:%s,sid:%s,sdkid:%s",uid,sid,sdkid)
 
     --登录服取信息
     local ok,ret=pcall(cluster.call,login,loginservice,"auth",uid)
@@ -127,7 +127,7 @@ local function do_auth(fd, message, addr)
     elseif not ret then 
         return "404 User not found"
     end
-    --logger.debug(tostring(ret))
+    logger.debug(tostring(ret))
 
     --使用密钥，验证信息的一致性
     local v = b64encode(crypt.hmac_hash(ret.secret, username))
@@ -143,7 +143,7 @@ local function do_auth(fd, message, addr)
     u.uid=uid
     u.sid=sid
     u.sdkid=sdkid
-    user_online[uid]=u
+    user_online[uid]=u 
 
     local agent = table.remove(agent_pool)
 	if not agent then
@@ -177,7 +177,6 @@ local function auth(fd, addr, msg, sz)
         result = "400 Bad Request"
     end
 
-    logger.debug(type(result))
     local close = result ~= nil
 
     if result == nil then
@@ -200,8 +199,7 @@ end
 
 local function request(fd, msg, sz)
     local message = netpack.tostring(msg, sz)
-
-    logger.debug("recv data:%s",message)
+    
     local ok, err = pcall(do_request, fd, message)
     -- not atomic, may yield
     if not ok then

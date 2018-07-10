@@ -40,8 +40,8 @@ local switch = {
     [2] = function(bytes)
 		if NetApi.callback.OtherPlayerUpdateData ~= nil then 
 			local data = OtherPlayerUpdateData()
-			data:ParseFromString(bytes)
-			NetApi.callback.OtherPlayerUpdateData(data)
+			--data:ParseFromString(bytes)
+			NetApi.callback.OtherPlayerUpdateData(bytes)
 		end
     end,
     [20001] = function(bytes)
@@ -63,8 +63,11 @@ local switch = {
 
 --server to client
 function NetApi.receiveMsg(msg)
-	local code, bytes = string.unpack("<I4z", msg)
-	print(code,bytes)
+	--local code, bytes = string.unpack("<I4z", msg)
+	local code=string.unpack("<I4",msg)
+	local bytes=string.sub(msg,5)
+
+	--print(code,bytes)
 	-- print("NetApi.receiveMsg", code, bytes)
 	NetApi.receiveProtoPacket(code, bytes)
 end

@@ -15,6 +15,10 @@ local function start_gameserver()
     skynet.name("."..gameconf.servicename,gate)
     skynet.call(gate,"lua","init")--初始化
     skynet.call(gate,"lua","open",gameconf)
+    
+    local aoi=skynet.uniqueservice("aoiService")
+    skynet.name(".aoi",aoi)
+    
     cluster.open(gameconf.nodename)
 end
 

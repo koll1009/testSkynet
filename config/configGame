@@ -45,7 +45,7 @@ preload = app_root.."preload/preloadf.lua"
 cluster="config/clusterconfig.lua"
 start = "startService"
 nodename="gameserver"
-maxclient=80
+maxclient=200
 
 
 --[[ 

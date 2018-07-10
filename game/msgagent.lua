@@ -1,11 +1,10 @@
 local skynet = require "skynet"
 local queue = require "skynet.queue"
-local snax = require "snax"
-local netpack = require "netpack"
-local logger=require "liblog"
 local socket=require "socket"
 local runconf = require(skynet.getenv("runconfig"))
 local gameconf=runconf.service.server.gameserver
+local NetApi=require "NetApi"
+require "modules.aoi_module"
 
 
 local cs = queue()
@@ -13,7 +12,7 @@ local CMD = {}
 local agent={}
 
 --当玩家通过login and game server双重认证后，会分配一个agent，并初始化
-function CMD.init(source,conf)
+function CMD.init(conf)
 	logger.info("the agent inited for user %s",tostring(conf))
 	agent.fd = conf.fd  --fd
     agent.secret=conf.secret
@@ -23,21 +22,14 @@ end
 
 
 function CMD.kick()
+	skynet.call(".aoi","lua","player_leave")
 	agent=nil
 end
 
-function CMD.enter_aoi(x,y,z,o)
-	skynet.call(".aoi","lua","player_enter",x,y,z,o)
-end
-
-function CMD.update_aoi(x,y,z,o)
-	skynet.call(".aoi","lua","update_position",x,y,z,o)
-end
-
-function CMD.async_aoi(markerid,x,y,z)
+function CMD.async_aoi(marker_agent,x,y,z,o)
 	local fd=agent.fd
-	local uid=skynet.call("."..gameconf.servicename,"lua","getuid",markerid)
-	socket.write(fd,uid..x..y..z)
+	local uid=skynet.call("."..gameconf.servicename,"lua","getuid",marker_agent)
+	socket.write(fd,uid..x..y..z..o)
 end
 
 
@@ -53,9 +45,7 @@ end
 
 local function msg_dispatch(netmsg)
 	
-	local NetApi=require "NetApi"
 	NetApi.receiveMsg(netmsg)
-
 	skynet.ignoreret() --gate分发而来，不需要ret
 
 end
@@ -76,6 +66,6 @@ skynet.register_protocol {
 skynet.start(function()
 	skynet.dispatch("lua", function(session, source, command, ...)
 		local f = assert(CMD[command])
-		skynet.retpack(cs(f, source, ...))
+		skynet.retpack(cs(f, ...))
 	end)
 end)

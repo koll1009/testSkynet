@@ -11,19 +11,22 @@ local game_proxy={} --保存rpc地址
 local CMD={} --master的lua消息处理命令集
 local user_token={} 
 
+math.randomseed(tostring(os.time()):reverse():sub(1, 7))
 local function auth(token)
-    return "123" 
+    --return "123"    
+
+    return math.random(1,1000)
 end
 
 --登录服务器接收到客户端认证信息后调用
 --暂定为认证成功后返回服务器列表，所以server不用发
  function server.auth_handler(token)
-
+    logger.info("in auth handle,token is %s",token)
 	local ret = string.split(token, ":")
 	local token = ret[1]  
     local sdkid = tonumber(ret[2]) 
     local uid = auth(token, sdkid) --认证
-
+    logger.info("in auth handle,uid is %d",uid)
     --logger.debug"auth ss"
 	if not uid then
 		logger.error("auth failed")
@@ -35,7 +38,7 @@ end
 local sid=0
 function server.login_handler(uid,secret,token)
    -- logger.debug(type(uid))
-    local u=user_token[uid]
+    local u=user_token[tostring(uid)]
 
     --已登录，kick
     if u and u.gameserver and game_proxy[u.gameserver] then 
@@ -45,7 +48,7 @@ function server.login_handler(uid,secret,token)
     end
 
     --也有可能用户通过登录验证，但迟迟没有选择游服，则覆盖掉，这样登录游服时会因为密钥和sid的不一致而失败
-    user_token[uid]={
+    user_token[tostring(uid)]={
         uid=uid,
         sid=sid,
         secret=secret,
@@ -123,7 +126,7 @@ function CMD.register_game(nodename,host,port,servicename)
 
         if not running then
             running=true
-            heartbeat()
+           -- heartbeat()
         end
 	end
 end

@@ -102,10 +102,9 @@ local function launch_slave(auth_handler)
 		logger.debug("auth challenge succeed")
 		local etoken = read("auth", fd)
 
-		--logger.debug("received token des and 64string is %s,%s",etoken,crypt.base64decode(etoken))
+
 		local token = crypt.desdecode(secret, crypt.base64decode(etoken)) --解密token数据
 
-		--logger.debug("server receive token %s",token)
 		local ok, uid = pcall(auth_handler, token) --调用认证函数
 
 		return ok, uid, secret,token
@@ -137,14 +136,12 @@ end
 local user_login = {}	-- key:uid value:true 表示玩家登录记录
 
 local function accept(conf, s, fd, addr)
-	 
 	local ok, uid, secret,token = skynet.call(s, "lua",  fd, addr) --调用slave处理认证过程
-
 	-- 认证失败，有两种可能，nil是socket error，false是认证失败
 	if not ok then
 		if ok ~= nil then
-			logger.info("401 Unauthorized,errmsg is %s",uid)
-			write("response 401", fd, "401 Unauthorized"..uid)
+			logger.info("401 Unauthorized")
+			write("response 401", fd, "401 Unauthorized")
         end
         logger.error("sock error in auth")
 		error("sock error in auth") 
