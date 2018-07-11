@@ -5,7 +5,7 @@ skynet_root = "$SKYNET_ROOT/"
 logpath = app_root.."log/"
 log_level = "debug"
 
-thread = 1
+thread = 4
 
 bootstrap = "snlua bootstrapGame"
 --bootstrap = "snlua bootstrap"

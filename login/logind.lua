@@ -26,7 +26,6 @@ end
 	local token = ret[1]  
     local sdkid = tonumber(ret[2]) 
     local uid = auth(token, sdkid) --认证
-    logger.info("in auth handle,uid is %d",uid)
     --logger.debug"auth ss"
 	if not uid then
 		logger.error("auth failed")
@@ -37,9 +36,8 @@ end
 
 local sid=0
 function server.login_handler(uid,secret,token)
-   -- logger.debug(type(uid))
     local u=user_token[tostring(uid)]
-
+  
     --已登录，kick
     if u and u.gameserver and game_proxy[u.gameserver] then 
         logger.info("%s is already online",uid)

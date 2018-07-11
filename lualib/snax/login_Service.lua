@@ -137,29 +137,39 @@ local user_login = {}	-- key:uid value:true 表示玩家登录记录
 
 local function accept(conf, s, fd, addr)
 	local ok, uid, secret,token = skynet.call(s, "lua",  fd, addr) --调用slave处理认证过程
+	
 	-- 认证失败，有两种可能，nil是socket error，false是认证失败
 	if not ok then
+		
 		if ok ~= nil then
-			logger.info("401 Unauthorized")
-			write("response 401", fd, "401 Unauthorized")
+			logger.error("401 Unauthorized")
+			local res={}
+			res.code=401
+			res.errmsg="Unauthorized"
+			logger.error(cjson.encode(res))
+			write("response 401", fd,cjson.encode(res))
+			--write("response 401", fd, "401 Unauthorized")
         end
-        logger.error("sock error in auth")
 		error("sock error in auth") 
     end
 
     --禁止多重登录
 	if not conf.multilogin then
 		if user_login[uid] then
-			write("response 406", fd, "406 Not Acceptable")			
-			logger.error("406 Not Acceptable uid=%d", uid)
+			local res={}
+			res.code=406
+			res.errmsg="Not Acceptable"
+			write("response 406", fd,cjson.encode(res))
+			--write("response 406", fd, "406 Not Acceptable")			
 			error(string.format("User %s is already login", uid))
 		end
 		user_login[uid] = true
     end
-    
+	
+	
 	-- 回调登录服务器login_hander
 	local ok, sid,ret = pcall(conf.login_handler, uid, secret,token)
-
+    
 	user_login[uid] = nil	
 
 	if ok then
@@ -171,15 +181,16 @@ local function accept(conf, s, fd, addr)
 			write("response 200", fd,cjson.encode(res))
 		--write("response 200", fd, "200 "..crypt.base64encode(uid .. ":"..sid..":" .. tostring(ret)))
 	else
+		
 		logger.debug("403 Forbidden uid=%d", uid)
 		local res={}
-			res.code=403
-			res.errmsg="Forbidden"
-			write("response 403", fd,cjson.encode(res))
+		res.code=403
+		res.errmsg="Forbidden"
+		print(cjson.encode(res))
+		write("response 403", fd,cjson.encode(res))
 		--write("response 403", fd, "403 Forbidden")
 		error(sid)
     end
-    
 end
 
 local function launch_master(conf)
@@ -210,7 +221,7 @@ local function launch_master(conf)
 		local ok, err = pcall(accept, conf, s, fd, addr)
 		if not ok then
 			if err ~= socket_error then
-				logger.debug( "invalid client (fd = %d) error = %s", fd, err)
+				logger.error( "invalid client (fd = %d) error = %s", fd, err)
 			end
 		end
 		socket.close_fd(fd)

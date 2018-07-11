@@ -22,12 +22,29 @@ namespace client
     }
     class Program
     {
-        
+        static void read(NetWorkArgs arg)
+        {
+            
+            
+        }
          static void threadFun(object ob)
         {
             param o = ob as param;
-            
-           
+            NetworkCenter c = o.c;
+            c.recvCompleted += (arg) =>
+            {
+                NetworkIOArgs args = arg as NetworkIOArgs;
+                if (args.State != NetworkState.Closed)
+                {
+                    Console.WriteLine(Encoding.UTF8.GetString(args.Data, 0, args.Count));
+                    c.Recv();
+                }
+                else
+                {
+                    System.Diagnostics.Process.GetCurrentProcess().Kill();
+                }
+            };
+            c.Recv();
         }
  
 
@@ -55,11 +72,13 @@ namespace client
                     login.ReConnect("192.168.224.129", 8082);
                     login.connGameServerCompleted += (a) =>
                     {
-                        //int x = ran.Next(100);
-                        //int y = ran.Next(10);
-                        //int z = ran.Next(100);
-                        int x = 50;
-                        int y = 50;
+                        int x = ran.Next(100);
+                        int y = ran.Next(100);
+                       // int z = ran.Next(100);
+                        Thread t = new Thread(threadFun);
+                        t.Start(new param() { c=login });
+                        //int x = 50;
+                        //int y = 50;
                         int z = 0;
                         while (true)
                         {

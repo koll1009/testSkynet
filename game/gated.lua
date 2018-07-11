@@ -127,7 +127,7 @@ local function do_auth(fd, message, addr)
     elseif not ret then 
         return "404 User not found"
     end
-    logger.debug(tostring(ret))
+    --logger.debug(tostring(ret))
 
     --使用密钥，验证信息的一致性
     local v = b64encode(crypt.hmac_hash(ret.secret, username))
@@ -155,7 +155,7 @@ local function do_auth(fd, message, addr)
 			error("too many agents")
 		end
     end
-    skynet.call(agent,"lua","init",{ gate=skynet.self(),uid=uid,client_fd=fd,secret=ret.secret })
+    skynet.call(agent,"lua","init",{ gate=skynet.self(),uid=uid,client_fd=fd,secret=ret.secret,sid=sid })
     connection[fd]={
         agent=agent,
         uid=uid
