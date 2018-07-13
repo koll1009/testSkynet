@@ -146,7 +146,6 @@ local function accept(conf, s, fd, addr)
 			local res={}
 			res.code=401
 			res.errmsg="Unauthorized"
-			logger.error(cjson.encode(res))
 			write("response 401", fd,cjson.encode(res))
 			--write("response 401", fd, "401 Unauthorized")
         end
@@ -186,7 +185,6 @@ local function accept(conf, s, fd, addr)
 		local res={}
 		res.code=403
 		res.errmsg="Forbidden"
-		print(cjson.encode(res))
 		write("response 403", fd,cjson.encode(res))
 		--write("response 403", fd, "403 Forbidden")
 		error(sid)

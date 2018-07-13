@@ -38,11 +38,25 @@ local sid=0
 function server.login_handler(uid,secret,token)
     local u=user_token[tostring(uid)]
   
-    --已登录，kick
+    --[[已登录，kick
     if u and u.gameserver and game_proxy[u.gameserver] then 
         logger.info("%s is already online",uid)
         --使用pcall是因为，游服可能宕机，此时skynet.call会报错,此错误可以当作正常现象，替换掉用户凭证
-        pcall(skynet.call,game_proxy[u.gameserver],"lua","kick",uid) --此时uid要全服唯一
+        local ok=pcall(skynet.call,game_proxy[u.gameserver],"lua","kick",uid) --此时uid要全服唯一
+        if ok then 
+            logger.info("user:%s logout ,gameserver:%s",uid,nodename)
+            local g=game[nodename]
+            g.users=g.users-1
+            user_token[uid]=nil
+        end
+       
+    end
+    --]]
+    
+    --拒绝
+    if u then 
+        logger.warn("%s is already online",uid)
+        error("multiple login")
     end
 
     --也有可能用户通过登录验证，但迟迟没有选择游服，则覆盖掉，这样登录游服时会因为密钥和sid的不一致而失败
@@ -54,8 +68,8 @@ function server.login_handler(uid,secret,token)
     }
     sid=sid+1
     if table.empty(game) then 
-        logger.error("no game server started")
-        error("no game server started")
+        --logger.error("no game server started")
+       -- error("no game server started")
     else
         return sid,game --返回服务器内编号和游戏服信息
     end

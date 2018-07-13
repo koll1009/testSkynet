@@ -58,4 +58,5 @@ POSITION.is_extendable = false
 POSITION.extensions = {}
 
 local Position = protobuf.Message(POSITION)
+Position.POSITION=POSITION
 return Position

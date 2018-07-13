@@ -138,7 +138,7 @@ skynet.start(function()
 
     skynet.fork(function() 
         while true do 
-         print( aoi.message(space) )
+            print( aoi.message(space) )
            -- aoi.dump(space)
             skynet.sleep(10)
         end

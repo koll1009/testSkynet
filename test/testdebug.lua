@@ -1,14 +1,15 @@
 local skynet =require "skynet"
+local PlayerUpdateData = require 'pb/PlayerUpdateData_pb'
 
-skynet.register_protocol {
-	name = "text",
-	id = skynet.PTYPE_TEXT,
-	pack = function(text) return text end,
-	unpack = function(buf, sz) return skynet.tostring(buf,sz) end,
-}
 
 skynet.start(function() 
-    skynet.call(".aoi","text","update wm ")
+	local file=io.open("./3rd/protobuf/test.txt")
+	local msg=file:read("*a")
+	
+	local data = PlayerUpdateData.PlayerUpdateData()
+	 data:ParseFromString(msg)
+	 print(data.position.x)
+
     skynet.exit()
 end)
  

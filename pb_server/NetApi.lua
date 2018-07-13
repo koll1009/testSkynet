@@ -4,6 +4,8 @@
 
 local LoginData = require 'pb/LoginData_pb'
 local OtherPlayerUpdateData = require 'pb/OtherPlayerUpdateData_pb'
+local PlayerUpdateData=require "pb.PlayerUpdateData_pb"
+local packetsender=require "libsender"
 
 NetApi = {}
 
@@ -21,12 +23,18 @@ function NetApi.sendPlayerUpdateData(data)
 	--packetsender.SendRequest(30002, bytes)
 end
 
+function NetApi.sendOtherPlayerUpdateData(data)
+	local bytes = data:SerializeToString()
+	packetsender.SendRequest(30002, bytes)
+end
+
 --callback
 NetApi.callback = {}
 -- NetApi.callback.LoginData = nil
 -- NetApi.callback.OtherPlayerUpdateData = nil
 -- NetApi.callback.LoginData = nil
 -- NetApi.callback.OtherPlayerUpdateData = nil
+-- NetAp
 
 
 local switch = {
@@ -40,10 +48,17 @@ local switch = {
     [2] = function(bytes)
 		if NetApi.callback.OtherPlayerUpdateData ~= nil then 
 			local data = OtherPlayerUpdateData()
-			--data:ParseFromString(bytes)
-			NetApi.callback.OtherPlayerUpdateData(bytes)
+			data:ParseFromString(bytes)
+			NetApi.callback.OtherPlayerUpdateData(data)
 		end
-    end,
+	end,
+	[3]=function(bytes)
+		if NetApi.callback.PlayerUpdateData~=nil then 
+			local data=PlayerUpdateData()
+			data:ParseFromString(bytes)
+			NetApi.callback.PlayerUpdateData(data)
+		end
+	end,
     [20001] = function(bytes)
 		if NetApi.callback.LoginData ~= nil then 
 			local data = LoginData()

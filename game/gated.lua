@@ -39,25 +39,7 @@ function CMD.init()
 end
 
 --kick，主动下线在线用户
-function CMD.kick(uid)
-    logger.info("kick user %s from %s",uid,nodename)
-    local u=user_online[uid]
-    local agent=connection[u.fd].agent
 
-    --1.关闭fd
-    gateserver.closeclient(u.fd)
-
-    --2.清空用户缓存
-    user_online[uid]=nil
-    connection[u.fd]=nil 
-
-    --3.关闭
-    skynet.call(agent,"lua","kick")
-    table.insert(agent_pool,agent)
-
-    --4.通知login server
-    cluster.call(login,loginservice,"logout_user",uid,nodename)
-end
 
 --心跳包
 function CMD.heartbeat()
@@ -95,6 +77,29 @@ function handler.connect(fd, addr)
     gateserver.openclient(fd) --开启数据接收
 end
 
+local function kick(uid)
+    logger.error("kick user %s from %s",uid,nodename)
+    local u=user_online[uid]
+    if not u then 
+        return 
+    end
+    local agent=connection[u.fd].agent
+
+    --1.关闭fd
+    gateserver.closeclient(u.fd)
+
+    --2.清空用户缓存
+    user_online[uid]=nil
+    connection[u.fd]=nil 
+
+    --3.关闭
+    skynet.call(agent,"lua","kick")
+    table.insert(agent_pool,agent)
+
+    --4.通知login server
+     cluster.call(login,loginservice,"logout_user",uid,nodename)
+end
+
 -- 连接断开回调
 function handler.disconnect(fd)
     logger.info("remote socket close")
@@ -102,7 +107,7 @@ function handler.disconnect(fd)
     local c = connection[fd]
     if c then
         logger.debug(c.uid)
-        CMD.kick(c.uid)
+        kick(c.uid)
     end
 end
 

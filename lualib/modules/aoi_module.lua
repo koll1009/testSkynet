@@ -2,15 +2,14 @@ local NetApi=require "NetApi"
 local skynet=require "skynet"
 local first=true
 local function position_handle(data)
-    --logger.debug("recv position pb data,id is %d,position type is %s ",data.playerid,type(data.position))
-   -- logger.debug("recv position pb data,position   is %s ",data)
+    --logger.debug("recv position pb data,position type is %s ",type(data.position))
     --测试数据 
-    local ret=string.split(data,":")
+    local position=data.position 
     if first then 
-        skynet.send(".aoi","lua","player_enter","mw",{x=ret[1],y=ret[2],z=ret[3],o=ret[4]})
+        skynet.send(".aoi","lua","player_enter","mw",{x=position.x,y=position.y,z=position.z,o=position.o})
         first=false 
     else
-        skynet.send(".aoi","lua","update_position",{x=ret[1],y=ret[2],z=ret[3],o=ret[4]})
+        skynet.send(".aoi","lua","update_position",{x=position.x,y=position.y,z=position.z,o=position.o})
     end
 end
-NetApi.callback.OtherPlayerUpdateData=position_handle
+NetApi.callback.PlayerUpdateData=position_handle

@@ -4,6 +4,7 @@ skynet_root = "$SKYNET_ROOT/"
 
 logpath = app_root.."log/"
 log_level = "debug"
+ 
 
 thread = 1
 
