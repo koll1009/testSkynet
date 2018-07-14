@@ -132,13 +132,14 @@ skynet.start(function()
     skynet.dispatch("lua",function(session,source,cmd,...)
         f=CMD[cmd]
         if f then 
-            f(source,...)
+            skynet.retpack(f(source,...))
         end
     end)
 
     skynet.fork(function() 
         while true do 
-            print( aoi.message(space) )
+            aoi.message(space)
+           -- print(  )
            -- aoi.dump(space)
             skynet.sleep(10)
         end

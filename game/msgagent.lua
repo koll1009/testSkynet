@@ -2,8 +2,7 @@ local skynet = require "skynet"
 local queue = require "skynet.queue"
 local socket=require "socket"
 local libsend=require "libsender"
-local NetApi=require "NetApi"
-require "modules.aoi_module"
+local modules=require "libmanager"
 
 
 local cs = queue()
@@ -35,16 +34,9 @@ function CMD.async_aoi(marker_agent,x,y,z,o)
 	local fd=agent.fd
 
 	local uid=type(marker_agent)=="boolean" and 1001 or skynet.call(agent.gate,"lua","getuid",marker_agent)
-
-	--临时
-	local proto=require "pb.OtherPlayerUpdateData_pb"
-	local data=proto()
-	data.playerId=tonumber(uid)
-	data.position.x=x
-	data.position.y=y 
-	data.position.z=z
-	data.position.o=o 
-	NetApi.sendOtherPlayerUpdateData(data)
+	local send=modules[30002]
+	send(uid,x,y,z,o)
+	
 end
 
 
