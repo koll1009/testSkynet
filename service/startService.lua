@@ -20,6 +20,8 @@ local function start_gameserver()
     skynet.name(".aoi",aoi)
     
     cluster.open(gameconf.nodename)
+
+    skynet.newservice("sv_managerService","192.168.224.129",8888)
 end
 
 local function start_mysql()
@@ -67,6 +69,6 @@ skynet.start(function()
     --start_redis()
     
     --skynet.newservice("testmysql",1)
-    skynet.newservice("console")
+
     skynet.exit()
 end)

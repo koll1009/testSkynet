@@ -47,7 +47,7 @@ start = "startService"
 nodename="gameserver"
 maxclient=200
 
-
+harbor=1
 --[[ 
 harbor = 1
 
