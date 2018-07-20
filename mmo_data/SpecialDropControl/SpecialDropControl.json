@@ -1,0 +1,6 @@
+{
+	"Tool": "tabtoy",
+	"Version": "2.8.11",
+	"SpecialDropControl":[
+		{ "ID": "SDR_001", "SeedType": 2, "max": 2, "DailyDropLimit": 2, "DropLimit": 2, "MemoryLimit": 2 }
+	]}

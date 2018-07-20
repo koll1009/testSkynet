@@ -1,0 +1,14 @@
+{
+	"Tool": "tabtoy",
+	"Version": "2.8.11",
+	"FunctionOpenConfig":[
+		{ "ID": "1", "Name": "角色系统", "OpenType": 0, "OpenLevel": 1, "EventId": 0, "Icon":[ "juesefenye1", "juesefenye22" ], "ModuleName": "ActorInfoPanel" },
+		{ "ID": "2", "Name": "背包系统", "OpenType": 0, "OpenLevel": 1, "EventId": 0, "Icon":[ "beibaofenye1", "beibaofenye22" ], "ModuleName": "BagPanel" },
+		{ "ID": "3", "Name": "技能系统", "OpenType": 0, "OpenLevel": 1, "EventId": 0, "Icon":[ "jineng", "Word-Skill" ], "ModuleName": "SkillPanel" },
+		{ "ID": "4", "Name": "宝典系统", "OpenType": 0, "OpenLevel": 1, "EventId": 0, "Icon":[ "baodian", "Word-Treasure" ] },
+		{ "ID": "5", "Name": "生活系统", "OpenType": 0, "OpenLevel": 1, "EventId": 0, "Icon":[ "shenghuo", "Word-Life" ] },
+		{ "ID": "6", "Name": "拍卖行系统", "OpenType": 0, "OpenLevel": 1, "EventId": 0, "Icon":[ "paimaihang", "Word-AuctionHouse" ] },
+		{ "ID": "7", "Name": "排行榜系统", "OpenType": 0, "OpenLevel": 1, "EventId": 0, "Icon":[ "paixingbang", "Word-RankingList" ] },
+		{ "ID": "8", "Name": "佣兵团系统", "OpenType": 0, "OpenLevel": 1, "EventId": 0, "Icon":[ "yongbingtuan", "Word-Mercenary" ] },
+		{ "ID": "9", "Name": "设置系统", "OpenType": 0, "OpenLevel": 1, "EventId": 0, "Icon":[ "shezhi", "Word-SetUp" ] }
+	]}

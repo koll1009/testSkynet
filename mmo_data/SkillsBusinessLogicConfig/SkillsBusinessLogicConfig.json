@@ -1,0 +1,7 @@
+{
+	"Tool": "tabtoy",
+	"Version": "2.8.11",
+	"SkillsBusinessLogicConfig":[
+		{ "ID": 1, "ProfessionalLimit": 1, "LevelLimit": 1, "Level": 1, "Precondition": 0, "Condition": 0, "GoldConsume": 0 },
+		{ "ID": 2, "ProfessionalLimit": 1, "LevelLimit": 5 }
+	]}

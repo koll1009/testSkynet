@@ -9,11 +9,15 @@ logger.set_name("startService")
 
 local function start_gameserver()
     logger.info("now start gameserver  !")
+   -- skynet.newservice("LoadDataService")
+    local rods=skynet.newservice("ReadonlyLoadDataService")
+    skynet.name(".ReadonlyLoadDataService",rods)
+
     local gameconf=runconf.service.server.gameserver
     logger.debug("gameconf %s",tostring(gameconf))
     local gate=skynet.uniqueservice("gated")
     skynet.name("."..gameconf.servicename,gate)
-    skynet.call(gate,"lua","init")--初始化
+    skynet.call(gate,"lua","init")--初�?�化
     skynet.call(gate,"lua","open",gameconf)
     
     local aoi=skynet.uniqueservice("aoiService")
@@ -22,6 +26,8 @@ local function start_gameserver()
     cluster.open(gameconf.nodename)
 
     skynet.newservice("sv_managerService","192.168.224.129",8888)
+    
+    
 end
 
 local function start_mysql()
@@ -61,6 +67,8 @@ local function init(start)
     end      
 end
 
+local builder=require "skynet.datasheet.builder"
+local datasheet=require "skynet.datasheet"
 skynet.start(function()
     logger.info("%s server start,version is %s!",start,runconf.version)
     init(start)
@@ -69,6 +77,6 @@ skynet.start(function()
     --start_redis()
     
     --skynet.newservice("testmysql",1)
-
+    --skynet.newservice("console")
     skynet.exit()
 end)

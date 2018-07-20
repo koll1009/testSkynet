@@ -1,0 +1,9 @@
+{
+	"Tool": "tabtoy",
+	"Version": "2.8.11",
+	"FixedRuleList":[
+		{ "ID": "1", "ParamType": 1, "Value": 30 },
+		{ "ID": "2", "ParamType": 2, "Value": 30 },
+		{ "ID": "3", "ParamType": 3, "Value": 10 },
+		{ "ID": "3", "ParamType": 3, "Value": 10 }
+	]}

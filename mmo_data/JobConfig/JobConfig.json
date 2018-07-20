@@ -1,0 +1,10 @@
+{
+	"Tool": "tabtoy",
+	"Version": "2.8.11",
+	"JobConfig":[
+		{ "ID": "1", "Professional": "狂剑士", "ProfessionalSkills":[  ] },
+		{ "ID": "2", "Professional": "神射手", "ProfessionalSkills":[  ] },
+		{ "ID": "3", "Professional": "守护者", "ProfessionalAction": "ctrl_03", "ProfessionalSkills":[ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 ] },
+		{ "ID": "4", "Professional": "魔导师", "ProfessionalSkills":[  ] },
+		{ "ID": "5", "Professional": "圣职者", "ProfessionalSkills":[  ] }
+	]}

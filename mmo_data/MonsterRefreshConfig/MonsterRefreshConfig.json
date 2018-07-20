@@ -1,0 +1,22 @@
+{
+	"Tool": "tabtoy",
+	"Version": "2.8.11",
+	"MonsterRefreshConfig":[
+		{ "ID": "21001013", "MonsterId": "21100004", "MapLocation": 40001001, "TriggerCondition": 0, "ConditionParameters": 0, "BurshNumber": 5, "Rebirth": 1, "RebirthTime": 2, "EffectiveExtension": 0, "ThereTime": 0, "Attribution": 0 },
+		{ "ID": "21001014", "MonsterId": "21101001", "MapLocation": 40001002, "TriggerCondition": 0, "ConditionParameters": 0, "BurshNumber": 2, "Rebirth": 1, "RebirthTime": 2, "EffectiveExtension": 0, "ThereTime": 0, "Attribution": 0 },
+		{ "ID": "21001015", "MonsterId": "21101002", "TriggerCondition": 0, "ConditionParameters": 0, "BurshNumber": 1, "Rebirth": 1, "RebirthTime": 2, "EffectiveExtension": 0, "ThereTime": 0, "Attribution": 0 },
+		{ "ID": "21001016", "MonsterId": "21101003", "MapLocation": 40001004, "TriggerCondition": 0, "ConditionParameters": 0, "BurshNumber": 5, "Rebirth": 1, "RebirthTime": 2, "EffectiveExtension": 0, "ThereTime": 0, "Attribution": 0 },
+		{ "ID": "21001017", "MonsterId": "21102002", "MapLocation": 40001005, "TriggerCondition": 0, "ConditionParameters": 0, "BurshNumber": 1, "Rebirth": 1, "RebirthTime": 2, "EffectiveExtension": 0, "ThereTime": 0, "Attribution": 0 },
+		{ "ID": "21001018", "MonsterId": "21100004", "MapLocation": 40001006, "TriggerCondition": 0, "ConditionParameters": 0, "BurshNumber": 5, "Rebirth": 1, "RebirthTime": 2, "EffectiveExtension": 0, "ThereTime": 0, "Attribution": 0 },
+		{ "ID": "21001019", "MonsterId": "21100005", "MapLocation": 40001007, "TriggerCondition": 0, "ConditionParameters": 0, "BurshNumber": 2, "Rebirth": 1, "RebirthTime": 2, "EffectiveExtension": 0, "ThereTime": 0, "Attribution": 0 },
+		{ "ID": "21001020", "MonsterId": "21101003", "MapLocation": 40001008, "TriggerCondition": 0, "ConditionParameters": 0, "BurshNumber": 5, "Rebirth": 1, "RebirthTime": 2, "EffectiveExtension": 0, "ThereTime": 0, "Attribution": 0 },
+		{ "ID": "21001021", "MonsterId": "21101004", "MapLocation": 40001001, "TriggerCondition": 0, "ConditionParameters": 0, "BurshNumber": 5, "Rebirth": 1, "RebirthTime": 2, "EffectiveExtension": 0, "ThereTime": 0, "Attribution": 0 },
+		{ "ID": "21001022", "MonsterId": "21102002", "MapLocation": 40001010, "TriggerCondition": 0, "ConditionParameters": 0, "BurshNumber": 1, "Rebirth": 1, "RebirthTime": 2, "EffectiveExtension": 0, "ThereTime": 0, "Attribution": 0 },
+		{ "ID": "21001023", "MonsterId": "21100004", "MapLocation": 40001011, "TriggerCondition": 0, "ConditionParameters": 0, "BurshNumber": 5, "Rebirth": 1, "RebirthTime": 2, "EffectiveExtension": 0, "ThereTime": 0, "Attribution": 0 },
+		{ "ID": "21001024", "MonsterId": "21100004", "MapLocation": 40001012, "TriggerCondition": 0, "ConditionParameters": 0, "BurshNumber": 5, "Rebirth": 1, "RebirthTime": 2, "EffectiveExtension": 0, "ThereTime": 0, "Attribution": 0 },
+		{ "ID": "21001025", "MonsterId": "21100002", "MapLocation": 40001002, "TriggerCondition": 0, "ConditionParameters": 0, "BurshNumber": 5, "Rebirth": 1, "RebirthTime": 2, "EffectiveExtension": 0, "ThereTime": 0, "Attribution": 0 },
+		{ "ID": "21001026", "MonsterId": "21100003", "MapLocation": 40001003, "TriggerCondition": 0, "ConditionParameters": 0, "BurshNumber": 5, "Rebirth": 1, "RebirthTime": 2, "EffectiveExtension": 0, "ThereTime": 0, "Attribution": 0 },
+		{ "ID": "21001027", "MonsterId": "21100006", "MapLocation": 40001006, "TriggerCondition": 0, "ConditionParameters": 0, "BurshNumber": 5, "Rebirth": 1, "RebirthTime": 2, "EffectiveExtension": 0, "ThereTime": 0, "Attribution": 0 },
+		{ "ID": "21001028", "MonsterId": "21100007", "MapLocation": 40001007, "TriggerCondition": 0, "ConditionParameters": 0, "BurshNumber": 5, "Rebirth": 1, "RebirthTime": 2, "EffectiveExtension": 0, "ThereTime": 0, "Attribution": 0 },
+		{ "ID": "21001029", "MonsterId": "21100005", "MapLocation": 40001005, "TriggerCondition": 0, "ConditionParameters": 0, "BurshNumber": 10, "Rebirth": 1, "RebirthTime": 2, "EffectiveExtension": 0, "ThereTime": 0, "Attribution": 0 }
+	]}

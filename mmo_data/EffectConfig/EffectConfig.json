@@ -1,0 +1,6 @@
+{
+	"Tool": "tabtoy",
+	"Version": "2.8.11",
+	"EffectConfig":[
+		{ "ID": 1, "Path": "Effect/eff_09/Prefab/eff_09_008", "Time": 0 }
+	]}

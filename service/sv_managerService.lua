@@ -153,7 +153,7 @@ function COMMAND.help()
 		logon = "logon address",
 		logoff = "logoff address",
 		log = "launch a new lua service with log",
-		debug = "debug address : debug a lua service",
+		--debug = "debug address : debug a lua service",
 		signal = "signal address sig",
 		cmem = "Show C memory info",
 		shrtbl = "Show shared short string table info",
@@ -214,12 +214,13 @@ local function adjust_address(address)
 	if address:sub(1,1) ~= ":" then
 		address = assert(tonumber("0x" .. address), "Need an address") | (skynet.harbor(skynet.self()) << 24)
 	end
-    --]]
-    assert(tonumber(address),"invalid address")
+	--]]
+	local addr=tonumber("0x"..address)
+    assert(addr,"invalid address")
     if tonumber(string.sub(address,1,2)) ~=skynet.harbor(skynet.self()) then 
         return 
     end
-	return tonumber("0x"..address)
+	return addr
 end
 
 function COMMAND.list()
@@ -271,6 +272,7 @@ function COMMAND.info(address, ...)
 	return skynet.call(address,"debug","INFO", ...)
 end
 
+--[[
 function COMMANDX.debug(cmd)
 	local address = adjust_address(cmd[2])
 	local agent = skynet.newservice "debug_agent"
@@ -308,6 +310,7 @@ function COMMANDX.debug(cmd)
 		error(err)
 	end
 end
+--]]
 
 function COMMAND.logon(address)
 	address = adjust_address(address)

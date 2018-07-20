@@ -9,7 +9,10 @@ local cs = queue()
 local CMD = {}
 local agent={}
 
---当玩家通过login and game server双重认证后，会分配一个agent，并初始化
+--当玩家通过login and game server双重认证后，会分配一个agent，并初�?�化
+
+local load=require "libloaddata"
+
 function CMD.init(conf)
 	logger.info("the agent inited for user %s",tostring(conf))
 	agent.fd = conf.client_fd  --fd
@@ -20,6 +23,11 @@ function CMD.init(conf)
 
 	--
 	libsend.SetSock(conf.client_fd)
+
+	--test shared data
+	print(tostring(load.get("MapConfig")))
+	--print(tostring(load.get("SkillConfig")))
+	print(1)
 end
 
 
@@ -71,6 +79,7 @@ skynet.register_protocol {
 }
 
 skynet.start(function()
+
 	skynet.dispatch("lua", function(session, source, command, ...)
 		local f = assert(CMD[command])
 		skynet.retpack(cs(f, ...))

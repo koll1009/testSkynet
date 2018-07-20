@@ -1,0 +1,6 @@
+{
+	"Tool": "tabtoy",
+	"Version": "2.8.11",
+	"BuffConfig":[
+		{ "ID": 1, "Name": "buff1", "Icon": "skill_icon_001", "Effect": "effect", "ShowIcon": false, "IconPriority": 2, "Description": "Description", "Target": 2, "Clear": true, "BroadcastType": "BroadcastType", "BuffType": "BuffType", "EffectGroup": "EffectGroup", "Priority": 2, "Superposition": false, "SuperpositionLimit": 2, "ExistTime": 2.5, "EffectiveInterval": 2.5, "EffectType": 1, "EffectTypeNum": 2.5, "EffectTypePer": 0.5, "Event":[ "1,1,1" ], "Property":[ "1,1,1", "2,2,2" ] }
+	]}
