@@ -25,7 +25,7 @@ local function start_gameserver()
     
     cluster.open(gameconf.nodename)
 
-    skynet.newservice("sv_managerService","192.168.224.129",8888)
+    skynet.newservice("sv_managerService",gameconf.address,8888)
     
     
 end

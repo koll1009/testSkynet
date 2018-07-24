@@ -9,7 +9,7 @@ local cs = queue()
 local CMD = {}
 local agent={}
 
---当玩家通过login and game server双重认证后，会分配一个agent，并初�?�化
+--当玩家通过login and game server双重认证后，会分配一个agent，并初�?�化
 
 local load=require "libloaddata"
 
@@ -25,15 +25,13 @@ function CMD.init(conf)
 	libsend.SetSock(conf.client_fd)
 
 	--test shared data
-	print(tostring(load.get("MapConfig")))
-	--print(tostring(load.get("SkillConfig")))
-	print(1)
+	--print(tostring(load.get("MapConfig")))
 end
 
 
 function CMD.kick()
 	skynet.call(".aoi","lua","player_leave")
-	agent=nil
+	agent={}
 end
 
 

@@ -37,7 +37,7 @@ function CMD.get(key)
             return t
         end
     else
-        logger.error("error key %s",key)
+        logger.error("plesae create key %s first",key)
     end
 end
  

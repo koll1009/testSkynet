@@ -46,9 +46,11 @@ end
 
 function CMD.player_leave(source)
    local id=agent_id[source]
-   aoi.update(space,id,"d")
-   agent_id[source]=nil
-   c_id[id]=nil
+   if agent_id[source] then
+     aoi.update(space,id,"d")
+     agent_id[source]=nil
+     c_id[id]=nil
+   end
 end
 
 function CMD.update_position(source,position)

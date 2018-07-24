@@ -78,19 +78,19 @@ function handler.connect(fd, addr)
 end
 
 local function kick(uid)
-    logger.error("kick user %s from %s",uid,nodename)
+   -- logger.error("kick user %s from %s",uid,nodename)
     local u=user_online[uid]
     if not u then 
         return 
     end
     local agent=connection[u.fd].agent
 
-    --1.关闭fd
-    gateserver.closeclient(u.fd)
-
-    --2.清空用户缓存
+    --1.清空用户缓存
     user_online[uid]=nil
     connection[u.fd]=nil 
+
+    --2.关闭fd
+    gateserver.closeclient(u.fd)
 
     --3.关闭
     skynet.call(agent,"lua","kick")
@@ -102,7 +102,7 @@ end
 
 -- 连接断开回调
 function handler.disconnect(fd)
-    logger.info("remote socket close")
+    logger.info("remote socket %d close",fd)
     handshake[fd] = nil
     local c = connection[fd]
     if c then
@@ -112,13 +112,17 @@ function handler.disconnect(fd)
 end
 
 -- socket发生错误时回调
-handler.error = handler.disconnect
+--handler.error = handler.disconnect
+handler.error=function(fd,errmsg)
+    logger.error("socket %d occurs error:%s",fd,errmsg)
+end
 
 
 local function getuid(token)
     local uid, sid, sdkid = token:match "([^@]*)@([^#]*)#(.*)"
 	return b64decode(uid), b64decode(sid), b64decode(sdkid)
 end
+
 local function do_auth(fd, message, addr)
     local username, hmac = string.match(message, "([^:]*):([^:]*)")  
     local uid,sid,sdkid=getuid(username)
