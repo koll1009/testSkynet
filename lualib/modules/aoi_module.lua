@@ -14,7 +14,7 @@ local function position_handle(data)
         skynet.send(".aoi","lua","update_position",{x=position.x,y=position.y,z=position.z,o=position.o})
     end
 end
-NetApi.callback.PlayerUpdateData=position_handle
+NetApi.callback.OtherPlayerUpdateData=position_handle
 
 local function send_position(uid,x,y,z,o)
     
@@ -29,5 +29,9 @@ local function send_position(uid,x,y,z,o)
 end
 local funcs={}
 funcs[30002]=send_position
+
+function funcs.close()
+    first=true
+end
 
 return funcs

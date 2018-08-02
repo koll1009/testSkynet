@@ -342,6 +342,9 @@ is_near(float p1[3], float p2[3]) {
 inline static float
 dist2(struct object *p1, struct object *p2) {
 	float d = DIST2(p1->position,p2->position);
+	//printf("%f:%f:%f\n",p1->position[0],p1->position[1],p1->position[2]);
+	//printf("%f:%f:%f\n",p2->position[0],p2->position[1],p2->position[2]);
+	//printf("%f\n",d);
 	return d;
 }
 
@@ -378,6 +381,7 @@ aoi_update(struct aoi_space * space , uint32_t id, const char * modestring , flo
 	bool changed = change_mode(obj, set_watcher, set_marker);
 
 	copy_position(obj->position, pos);//记录最新位置
+	//if (/*changed*/true || !is_near(pos, obj->last)) {
 	if (changed || !is_near(pos, obj->last)) {
 		// new object or change object mode
 		// or position changed
@@ -463,9 +467,11 @@ set_push(void * s, struct object * obj) {
 static void
 gen_pair(struct aoi_space * space, struct object * watcher, struct object * marker, aoi_Callback cb, void *ud) {
 	if (watcher == marker) {
+		//printf("watcher equils marker\n");
 		return;
 	}
 	float distance2 = dist2(watcher, marker);//计算间距
+	
 	if (distance2 < AOI_RADIS2) {//aoi半径内，触发cb
 		cb(ud, watcher->id, marker->id);
 		return;
@@ -483,7 +489,6 @@ gen_pair(struct aoi_space * space, struct object * watcher, struct object * mark
 	p->next = space->hot;
 	space->hot = p;
 }
-
 //生成pair list
 static void
 gen_pair_list(struct aoi_space *space, struct object_set * watcher, struct object_set * marker, aoi_Callback cb, void *ud) {

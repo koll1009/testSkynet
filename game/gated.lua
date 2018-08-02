@@ -112,10 +112,7 @@ function handler.disconnect(fd)
 end
 
 -- socket发生错误时回调
---handler.error = handler.disconnect
-handler.error=function(fd,errmsg)
-    logger.error("socket %d occurs error:%s",fd,errmsg)
-end
+handler.error = handler.disconnect
 
 
 local function getuid(token)

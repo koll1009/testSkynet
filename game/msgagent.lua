@@ -32,6 +32,7 @@ end
 function CMD.kick()
 	skynet.call(".aoi","lua","player_leave")
 	agent={}
+	modules.close();
 end
 
 

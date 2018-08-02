@@ -132,10 +132,11 @@ _aoi_update(lua_State *L) {
         aoi_update(space,id,mode,NULL);
         return 0;
     }
-    float pos_x = (float)lua_tointeger(L, 4);
-    float pos_y = (float)lua_tointeger(L, 5);
-    float pos_z = (float)lua_tointeger(L, 6);
+    float pos_x = (float)lua_tonumber(L, 4);
+    float pos_y = (float)lua_tonumber(L, 5);
+    float pos_z = (float)lua_tonumber(L, 6);
 
+    //printf("in lua aoi_update:%f:%f:%f",pos_x,pos_y,pos_z);
     float pos[3] = {pos_x, pos_y, pos_z};
 
     aoi_update(space, id, mode, pos);
