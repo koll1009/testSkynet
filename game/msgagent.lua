@@ -23,16 +23,13 @@ function CMD.init(conf)
 
 	--
 	libsend.SetSock(conf.client_fd)
-
-	--test shared data
-	--print(tostring(load.get("MapConfig")))
 end
 
 
 function CMD.kick()
 	skynet.call(".aoi","lua","player_leave")
 	agent={}
-	modules.close();
+	modules.close()
 end
 
 
@@ -41,9 +38,12 @@ function CMD.async_aoi(marker_agent,x,y,z,o)
 	local fd=agent.fd
 
 	local uid=type(marker_agent)=="boolean" and 1001 or skynet.call(agent.gate,"lua","getuid",marker_agent)
-	local send=modules[30002]
-	send(uid,x,y,z,o)
+	modules.sendOtherPlayerUpdateData(uid,x,y,z,o)
 	
+end
+
+function CMD.test(sid,tid,skid)
+	modules.sendOtherPlayerUseSkill(sid,tid,skid)
 end
 
 

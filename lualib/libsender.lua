@@ -1,20 +1,17 @@
 local socket = require "socket"
 local cmd={}
 
-local test
+local socketID
 
 
 function cmd.SendRequest(type,bytes)
-   -- assert(cmd.sockid)
     local data=string.pack("<I4",type)..bytes
     local package = string.pack(">s2", data)
-    --socket.write(cmd.sockid, package)
-    socket.write(test,package)
+    socket.write(socketID,package)
 end
 
 function cmd.SetSock(id)
-  --  cmd.sockid=id
-  test=id
+  socketID=id
 end
 
 return cmd

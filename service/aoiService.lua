@@ -44,6 +44,24 @@ function CMD.player_enter(source,mode,position)
    
 end
 
+function CMD.test(source,sid,tid,skid)
+    local id=agent_id[source]
+    local c=c_id[id]
+    local radius_objs=c.radius_objs
+    if radius_objs~=nil then
+       
+        for id,_ in pairs(radius_objs) do   
+            local m=c_id[id]
+            if m==nil then 
+                radius_objs[id]=nil
+            else                             
+                skynet.send(m.agent,"lua","test",sid,tid,skid)   
+            end
+        end
+        
+    end 
+end
+
 function CMD.player_leave(source)
    logger.debug("player %08x leave",source)
    local id=agent_id[source]
@@ -122,9 +140,9 @@ local function testNPC()
         local c={}
         local x,y,z,o=math.random(1,100),math.random(1,100),0,45
         c.agent=true
-        c.x= -116
-        c.y= 3
-        c.z= 38
+        c.x= x
+        c.y= y
+        c.z= z
         c.o=o 
         c.mode="m"
         aoi.update(space,aid,"m",x,y,z)
@@ -136,11 +154,11 @@ end
 
 skynet.start(function() 
     space=aoi.create(cb_message)
-    math.randomseed(tostring(os.time()):reverse():sub(1, 7)) 
-    testNPC()
+    --math.randomseed(tostring(os.time()):reverse():sub(1, 7)) 
+    --testNPC()
 
      
-   ---[[
+    --[[
     skynet.fork(function() 
         
         while true do
@@ -184,4 +202,4 @@ skynet.start(function()
         end
     end)
 
-end)
+end) 

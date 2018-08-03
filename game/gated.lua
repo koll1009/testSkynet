@@ -106,7 +106,7 @@ function handler.disconnect(fd)
     handshake[fd] = nil
     local c = connection[fd]
     if c then
-        logger.debug(c.uid)
+       -- logger.debug(c.uid)
         kick(c.uid)
     end
 end

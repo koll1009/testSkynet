@@ -28,7 +28,7 @@ local function send_position(uid,x,y,z,o)
     
 end
 local funcs={}
-funcs[30002]=send_position
+funcs.sendOtherPlayerUpdateData=send_position
 
 function funcs.close()
     first=true
