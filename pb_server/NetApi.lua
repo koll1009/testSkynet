@@ -13,12 +13,12 @@ NetApi = {}
 --client to server
 function NetApi.sendOtherPlayerUpdateData(data)
 	local bytes = data:SerializeToString()
-	packetsender.SendRequest(10002, bytes)
+	packetsender.SendRequest(10001, bytes)
 end
  
 function NetApi.sendOtherPlayerUseSkill(data)
 	local bytes = data:SerializeToString()
-	packetsender.SendRequest(10003, bytes)
+	packetsender.SendRequest(10002, bytes)
 end
 
 --callback

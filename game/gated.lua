@@ -31,7 +31,7 @@ function CMD.init()
 	local n = maxclient // 10
 	logger.info("precreate %d agents", n)
 	for i = 1, n do
-		local agent = assert(skynet.newservice("msgagent"), string.format("precreate agent %d of %d error", i, n))
+		local agent = assert(skynet.newservice("agent"), string.format("precreate agent %d of %d error", i, n))
 		table.insert(agent_pool, agent)
 	end
 	max_agent = 2 * maxclient
@@ -154,7 +154,7 @@ local function do_auth(fd, message, addr)
     local agent = table.remove(agent_pool)
 	if not agent then
 		if curr_agent < max_agent then
-			agent = skynet.newservice "msgagent"
+			agent = skynet.newservice "agent"
 			curr_agent = curr_agent + 1
 		else
 			logger.error("too many agents")
