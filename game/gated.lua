@@ -3,6 +3,7 @@ local skynet = require "skynet"
 local cluster = require "cluster"
 local logger=require "liblog"
 local runconf = require(skynet.getenv("runconfig")) 
+local mysql=require "libdbpool"
 
 local gateserver = require "snax.gateserver"
 local netpack = require "netpack"
@@ -93,7 +94,7 @@ local function kick(uid)
     gateserver.closeclient(u.fd)
 
     --3.关闭
-    skynet.call(agent,"lua","kick")
+    skynet.send(agent,"lua","kick")
     table.insert(agent_pool,agent)
 
     --4.通知login server
@@ -149,6 +150,8 @@ local function do_auth(fd, message, addr)
     u.uid=uid
     u.sid=sid
     u.sdkid=sdkid
+
+
     user_online[uid]=u 
 
     local agent = table.remove(agent_pool)
@@ -161,7 +164,7 @@ local function do_auth(fd, message, addr)
 			error("too many agents")
 		end
     end
-    skynet.call(agent,"lua","init",{ gate=skynet.self(),uid=uid,client_fd=fd,secret=ret.secret,sid=sid })
+    skynet.send(agent,"lua","init",{ gate=skynet.self(),uid=uid,client_fd=fd,secret=ret.secret,sid=sid })
     connection[fd]={
         agent=agent,
         uid=uid

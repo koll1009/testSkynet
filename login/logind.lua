@@ -4,6 +4,7 @@ local cluster=require "cluster"
 local login=require "snax.login_Service"
 local runconf=require "runconfig"
 local NetApi=require "NetApi"
+local mysql=require "libdbpool"
 
 local server =runconf.service.server.loginserver
 local game={} --保存游戏服务器
@@ -12,10 +13,16 @@ local CMD={} --master的lua消息处理命令集
 local user_token={} 
 
 math.randomseed(tostring(os.time()):reverse():sub(1, 7))
-local function auth(token)
+local function auth(u,pwd)
     --return "123"    
-
-    return math.random(1,1000)
+     local strSql=string.format("select Uid from Users where Name='%s' and Pwd='%s'",u,pwd)
+     logger.debug("execute sql statement:%s",strSql)
+     local status,ret=mysql.execute(strSql)
+     if status==0 and ret[1]~=nil then 
+        return ret[1].Uid
+     else
+        logger.warn("execute sql statement:%s failed,errmsg is %s",strSql,ret)
+     end
 end
 
 --登录服务器接收到客户端认证信息后调用
@@ -24,7 +31,7 @@ end
     logger.info("in auth handle,token is %s",token)
 	local ret = string.split(token, ":")
 	local token = ret[1]  
-    local sdkid = tonumber(ret[2]) 
+    local sdkid = ret[2]
     local uid = auth(token, sdkid) --认证
     --logger.debug"auth ss"
 	if not uid then

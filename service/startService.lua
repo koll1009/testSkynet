@@ -17,7 +17,7 @@ local function start_gameserver()
     logger.debug("gameconf %s",tostring(gameconf))
     local gate=skynet.uniqueservice("gated")
     skynet.name("."..gameconf.servicename,gate)
-    skynet.call(gate,"lua","init")--初�?�化
+    skynet.call(gate,"lua","init")--初�?�化
     skynet.call(gate,"lua","open",gameconf)
     
     local aoi=skynet.uniqueservice("aoiService")
@@ -26,6 +26,7 @@ local function start_gameserver()
     cluster.open(gameconf.nodename)
 
     skynet.newservice("sv_managerService",gameconf.address,8888)
+    skynet.newservice("monsterService",skynet.getenv "monster_path".."map.json")
     
     
 end
@@ -72,8 +73,9 @@ local datasheet=require "skynet.datasheet"
 skynet.start(function()
     logger.info("%s server start,version is %s!",start,runconf.version)
     init(start)
+
     --start_gateway()
-    --start_mysql()
+    start_mysql()
     --start_redis()
     
     --skynet.newservice("testmysql",1)

@@ -17,6 +17,8 @@ lualoader	= skynet_root.."lualib/loader.lua"
 cpath		= app_root.."cservice/?.so;"..skynet_root.."cservice/?.so;"
 module_path		= app_root.."lualib/modules"
 
+monster_path=app_root.."lualib/resource/"
+
 luaservice	= app_root.."service/?.lua;"..
               app_root.."test/?.lua;"..
               app_root.."game/?.lua;"..

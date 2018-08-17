@@ -25,9 +25,9 @@ function M.load_modules(dir)
     end
     package.path=package_path
 end 
-function M.init(w,u)
+function M.init(agent)
     for _,func in ipairs(M.init_array) do
-        func(w,u)
+        func(agent)
     end
 end
 function M.close()
